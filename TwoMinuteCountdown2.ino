@@ -1,3 +1,8 @@
+const int RF_D0_PIN = 2;
+const int RF_D1_PIN = 3;
+const int RF_D2_PIN = 4;
+const int RF_D3_PIN = 5;
+
 const int PRE_COUNT_PIN = 8;
 const int WARNING_PIN = 9;
 const int DIAL_UP_PIN = 10;
@@ -32,6 +37,11 @@ void setup()
   //{
   //  Serial.println(startTimes_ms[i]);
   //}
+  pinMode(RF_D0_PIN, INPUT);
+  pinMode(RF_D1_PIN, INPUT);
+  pinMode(RF_D2_PIN, INPUT);
+  pinMode(RF_D3_PIN, INPUT);
+
   pinMode(PRE_COUNT_PIN, OUTPUT);
   pinMode(WARNING_PIN, OUTPUT);
   pinMode(DIAL_UP_PIN, OUTPUT);
@@ -39,7 +49,7 @@ void setup()
   pinMode(POST_COUNT_PIN, OUTPUT);
   pinMode(SPKR_PIN, OUTPUT);
 
-  digitalWrite(PRE_COUNT_PIN, HIGH);
+  digitalWrite(PRE_COUNT_PIN, LOW);
   digitalWrite(WARNING_PIN, LOW);
   digitalWrite(DIAL_UP_PIN, LOW);
   digitalWrite(RACING_PIN, LOW);
@@ -49,24 +59,49 @@ void setup()
   zeroTime_ms = millis();
 }
 
+bool stopped = true;
+
 void loop()
 {
-  if (currStateCounter >= numStates)
+  if (digitalRead(RF_D0_PIN) == HIGH) // Button "B"
   {
-    digitalWrite(POST_COUNT_PIN, HIGH);
+    stopped = true;
+    digitalWrite(PRE_COUNT_PIN, LOW);
+    digitalWrite(WARNING_PIN, LOW);
+    digitalWrite(DIAL_UP_PIN, LOW);
+    digitalWrite(RACING_PIN, LOW);
+    digitalWrite(POST_COUNT_PIN, LOW);
+    digitalWrite(SPKR_PIN, LOW);
   }
-  else
+  if (stopped)
   {
-    ULONG currTime_ms = millis() - zeroTime_ms;
-    if (currTime_ms >= (startTimes_ms[currStateCounter]+preDelay_ms))
+    if (digitalRead(RF_D2_PIN) == HIGH) // Button "A"
     {
-      digitalWrite(SPKR_PIN, spkrStates[currStateCounter]);
+      currStateCounter = 0;
+      zeroTime_ms = millis();
+      digitalWrite(PRE_COUNT_PIN, HIGH);
+      stopped = false;
+    }
+  }
+  else // Not stopped = Runnning
+  {
+    if (currStateCounter >= numStates)
+    {
+      digitalWrite(POST_COUNT_PIN, HIGH);
+    }
+    else
+    {
+      ULONG currTime_ms = millis() - zeroTime_ms;
+      if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
+      {
+        digitalWrite(SPKR_PIN, spkrStates[currStateCounter]);
 
-      digitalWrite(PRE_COUNT_PIN, LOW);
-      digitalWrite(WARNING_PIN, wpStates[currStateCounter]);
-      digitalWrite(DIAL_UP_PIN, duStates[currStateCounter]);
-      digitalWrite(RACING_PIN, rpStates[currStateCounter]);
-      currStateCounter++;
+        digitalWrite(PRE_COUNT_PIN, LOW);
+        digitalWrite(WARNING_PIN, wpStates[currStateCounter]);
+        digitalWrite(DIAL_UP_PIN, duStates[currStateCounter]);
+        digitalWrite(RACING_PIN, rpStates[currStateCounter]);
+        currStateCounter++;
+      }
     }
   }
 }
