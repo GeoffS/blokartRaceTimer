@@ -48,7 +48,7 @@ int fpStates[]        = {HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  
 
 const int numStates = 28;
 const int numSteps = numStates / 2;
-int stepConter;
+int stepCounter;
 void initStartTimes()
 {
   initShort(1);
@@ -74,15 +74,15 @@ void initShort(int delayTime_s)
   startTimes_ms[0] = 0;
   startTimes_ms[1] = shortPulse_ms;
   startTimes_ms[2] = delayTime_s * MSEC_PER_SEC;
-  stepConter = 2;
+  stepCounter = 2;
 }
 
 void addPulse(ULONG pulseDuration_ms, ULONG delayTime_s)
 {
-  if (stepConter >= MAX_NUM_STEPS) return;
-  startTimes_ms[stepConter + 1] = startTimes_ms[stepConter] + pulseDuration_ms;
-  startTimes_ms[stepConter + 2] = startTimes_ms[stepConter] + (delayTime_s * MSEC_PER_SEC);
-  stepConter += 2;
+  if (stepCounter >= MAX_NUM_STEPS) return;
+  startTimes_ms[stepCounter + 1] = startTimes_ms[stepCounter] + pulseDuration_ms;
+  startTimes_ms[stepCounter + 2] = startTimes_ms[stepCounter] + (delayTime_s * MSEC_PER_SEC);
+  stepCounter += 2;
 }
 
 void addShort(int timeToNextPulse_s)
@@ -107,7 +107,7 @@ void addPip(int timeToNextPulse_s)
 
 void addRaceEnd(int stateDuration_s)
 {
-  startTimes_ms[stepConter + 1] = startTimes_ms[stepConter] + (stateDuration_s * MSEC_PER_SEC);
+  startTimes_ms[stepCounter + 1] = startTimes_ms[stepCounter] + (stateDuration_s * MSEC_PER_SEC);
 }
 
 int currStateCounter = 0;
@@ -158,7 +158,7 @@ bool stopped = true;
 
 void loop()
 {
-  if (digitalRead(RF_D0_PIN) == HIGH) // Button "B"
+  if (digitalRead(RF_D0_PIN) == HIGH) // Button "B" = Reset Sequence
   {
     stopped = true;
     digitalWrite(PRE_COUNT_PIN, LOW);
@@ -172,7 +172,7 @@ void loop()
   }
   if (stopped)
   {
-    if (digitalRead(RF_D2_PIN) == HIGH) // Button "A"
+    if (digitalRead(RF_D2_PIN) == HIGH) // Button "A" = Start Sequence
     {
       currStateCounter = 0;
       zeroTime_ms = millis();
