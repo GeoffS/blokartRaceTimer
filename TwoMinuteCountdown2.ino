@@ -28,7 +28,7 @@ const ULONG preDelay_ms = 5000ul;
 const ULONG SEC_PER_MIN = 60;
 const ULONG MSEC_PER_SEC = 1000ul;
 
-#define MAX_NUM_STEPS 28
+#define MAX_NUM_STEPS 30
 
 const int numStatesOld = 28;
 ULONG startTimesOld_ms[] = {   0ul,  0ul + s, 1000ul, 1000ul + s, 2000ul, 2000ul + s, 3000ul, 3000ul + s, 4000ul, 4000ul + l, 64000ul, 64000ul + m, 94000ul, 94000ul + m, 119000ul, 119000ul + vs, 120000ul, 120000ul + vs, 121000ul, 121000ul + vs, 122000ul, 122000ul + vs, 123000ul, 123000ul + vs, 124000ul, 124000ul + l, 124000ul + (raceTime_min * 60000ul), 124000ul + (raceTime_min * 60000ul) + 60000ul};
@@ -46,8 +46,7 @@ int duStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, H
 int rpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH,  LOW,  LOW};
 int fpStates[]        = {HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH,  LOW};
 
-const int numStates = 28;
-const int numSteps = numStates / 2;
+int numStates;
 int stepCounter;
 void initStartTimes()
 {
@@ -65,6 +64,15 @@ void initStartTimes()
   addPip(1);
   addLong(raceTime_min * SEC_PER_MIN);
   addRaceEnd(60);
+
+  if (stepCounter > MAX_NUM_STEPS) 
+  {
+    numStates = MAX_NUM_STEPS;
+  }
+  else
+  {
+    numStates = stepCounter;
+  }
 }
 
 void initShort(int delayTime_s)
@@ -107,7 +115,9 @@ void addPip(int timeToNextPulse_s)
 
 void addRaceEnd(int stateDuration_s)
 {
+  if (stepCounter >= MAX_NUM_STEPS) return;
   startTimes_ms[stepCounter + 1] = startTimes_ms[stepCounter] + (stateDuration_s * MSEC_PER_SEC);
+  stepCounter += 2;
 }
 
 int currStateCounter = 0;
