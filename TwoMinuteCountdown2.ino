@@ -1,15 +1,27 @@
-const int RF_D0_PIN = 2;
-const int RF_D1_PIN = 3;
-const int RF_D2_PIN = 4;
-const int RF_D3_PIN = 5;
-const int FINISHED_LED_PIN = 6;
-const int SPKR_PIN = 7;
-const int PRE_COUNT_PIN = 8;
-const int WARNING_PIN = 9;
-const int DIAL_UP_PIN = 10;
-const int RACING_PIN = 11;
-const int POST_COUNT_PIN = 12;
-const int SPKR_LED_PIN = 13;
+// We can use this to disable the siren for testing....
+#define QUIET false
+
+/// Remote:
+const int remoteAPin = 4;
+const int remoteBPin = 2;
+const int remoteCPin = 5;
+const int remoteDPin = 3;
+
+// 12V Outputs:
+const int lightsPin = 6;
+const int sirenPin = 7;
+
+// Buttons:
+const int greenBtnPin = 8;
+const int whiteBtnPin = 9;
+
+//APA102C String:
+const int clkPin = 10;
+const int dataPin = 11;
+const int numLEDs = 30;
+
+const byte zero = 0;
+const byte allOnes = 255;
 
 #define ULONG unsigned long
 
@@ -40,11 +52,12 @@ ULONG startTimes_ms[MAX_NUM_STEPS];
 //                            S           S           S           S          L            M           M           L           P           P           P           P           L
 //                        ---------   ---------   ---------   ---------  ----------   ---------   ---------   ---------   ---------   ---------   ---------   ---------  ----------   ---------   ---------   ---------  ----------
 //                          0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18    19    20    21    22    23    25    26    27    28
-int spkrStates[]      = {HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW, HIGH,  LOW,  LOW,  LOW};
+//bool spkrStates[]   = {SHIH,  LOW, SHIH,  LOW, SHIH,  LOW, SHIH,  LOW, SHIH,  LOW, HIGH,  LOW, HIGH,  LOW, SHIH,  LOW, SHIH,  LOW, SHIH,  LOW, SHIH,  LOW, SHIH,  LOW, SHIH,  LOW,  LOW,  LOW};
+bool spkrStates[]     = {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, false};
 int wpStates[]        = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW};
 int duStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW};
 int rpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH,  LOW,  LOW};
-int fpStates[]        = {HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH,  LOW};
+int fpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH,  LOW};
 
 int numStates;
 int stepCounter;
@@ -65,7 +78,7 @@ void initStartTimes()
   addLong(raceTime_min * SEC_PER_MIN);
   addRaceEnd(60);
 
-  if (stepCounter > MAX_NUM_STEPS) 
+  if (stepCounter > MAX_NUM_STEPS)
   {
     numStates = MAX_NUM_STEPS;
   }
@@ -138,29 +151,24 @@ void setup()
     Serial.print(", ");
     Serial.println(startTimesOld_ms[i] - startTimes_ms[i]);
   }
-  pinMode(RF_D0_PIN, INPUT);
-  pinMode(RF_D1_PIN, INPUT);
-  pinMode(RF_D2_PIN, INPUT);
-  pinMode(RF_D3_PIN, INPUT);
+  pinMode(remoteAPin, INPUT);
+  pinMode(remoteBPin, INPUT);
+  pinMode(remoteCPin, INPUT);
+  pinMode(remoteDPin, INPUT);
 
-  pinMode(PRE_COUNT_PIN, OUTPUT);
-  pinMode(WARNING_PIN, OUTPUT);
-  pinMode(DIAL_UP_PIN, OUTPUT);
-  pinMode(RACING_PIN, OUTPUT);
-  pinMode(POST_COUNT_PIN, OUTPUT);
-  pinMode(FINISHED_LED_PIN, OUTPUT);
-  pinMode(SPKR_LED_PIN, OUTPUT);
-  pinMode(SPKR_PIN, OUTPUT);
+  pinMode(greenBtnPin, INPUT_PULLUP);
+  pinMode(whiteBtnPin, INPUT_PULLUP);
 
-  digitalWrite(PRE_COUNT_PIN, LOW);
-  digitalWrite(WARNING_PIN, LOW);
-  digitalWrite(DIAL_UP_PIN, LOW);
-  digitalWrite(RACING_PIN, LOW);
-  digitalWrite(POST_COUNT_PIN, LOW);
-  digitalWrite(FINISHED_LED_PIN, LOW);
-  digitalWrite(SPKR_LED_PIN, LOW);
-  digitalWrite(SPKR_PIN, LOW);
+  pinMode(clkPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
 
+  pinMode(lightsPin, OUTPUT);
+  pinMode(sirenPin, OUTPUT);
+
+  digitalWrite(lightsPin, LOW);
+
+  setSiren(false);
+  clearAll();
   zeroTime_ms = millis();
 }
 
@@ -168,49 +176,116 @@ bool stopped = true;
 
 void loop()
 {
-  if (digitalRead(RF_D0_PIN) == HIGH) // Button "B" = Reset Sequence
+  // Save some states we might be using more than once:
+  bool remoteAPinState = digitalRead(remoteAPin) == HIGH;
+  bool remoteBPinState = digitalRead(remoteBPin) == HIGH;
+
+  // Debug display:
+  //remoteAPinState ? refreshLEDs(1) : clearAll();
+  //remoteBPinState ? refreshLEDs(2) : clearAll();
+
+  // Process the states:
+  if (remoteBPinState) // Button "B" = Reset Sequence
   {
     stopped = true;
-    digitalWrite(PRE_COUNT_PIN, LOW);
-    digitalWrite(WARNING_PIN, LOW);
-    digitalWrite(DIAL_UP_PIN, LOW);
-    digitalWrite(RACING_PIN, LOW);
-    digitalWrite(POST_COUNT_PIN, LOW);
-    digitalWrite(FINISHED_LED_PIN, LOW);
-    digitalWrite(SPKR_LED_PIN, LOW);
-    digitalWrite(SPKR_PIN, LOW);
+    digitalWrite(lightsPin, LOW);
+    setSiren(false);
+
+    // Flash the big LEDs to indicate reset:
+    flashMainLEDs();
   }
   if (stopped)
   {
-    if (digitalRead(RF_D2_PIN) == HIGH) // Button "A" = Start Sequence
+    if (remoteAPinState) // Button "A" = Start Sequence
     {
       currStateCounter = 0;
       zeroTime_ms = millis();
-      digitalWrite(PRE_COUNT_PIN, HIGH);
       stopped = false;
+      flashMainLEDs();
     }
   }
   else // Not stopped = Runnning
   {
     if (currStateCounter >= numStates)
     {
-      digitalWrite(POST_COUNT_PIN, HIGH);
+      //digitalWrite(POST_COUNT_PIN, HIGH);
     }
     else
     {
       ULONG currTime_ms = millis() - zeroTime_ms;
       if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
       {
-        digitalWrite(SPKR_LED_PIN, spkrStates[currStateCounter]);
-        digitalWrite(SPKR_PIN, spkrStates[currStateCounter]);
-
-        digitalWrite(PRE_COUNT_PIN, LOW);
-        digitalWrite(WARNING_PIN, wpStates[currStateCounter]);
-        digitalWrite(DIAL_UP_PIN, duStates[currStateCounter]);
-        digitalWrite(RACING_PIN, rpStates[currStateCounter]);
-        digitalWrite(FINISHED_LED_PIN, fpStates[currStateCounter]);
+        setSiren(spkrStates[currStateCounter]);
+        digitalWrite(lightsPin, fpStates[currStateCounter]);
         currStateCounter++;
       }
     }
+  }
+}
+
+void flashMainLEDs()
+{
+  // Flash the big LEDs to indicate reset:
+  digitalWrite(lightsPin, HIGH);
+  delay(200);
+  digitalWrite(lightsPin, LOW);
+}
+
+void setSiren(bool state)
+{
+  if (!QUIET) digitalWrite(sirenPin, state ? HIGH : LOW);
+  setLED0(state);
+}
+
+void setLED0(bool state)
+{
+  if (state)
+  {
+    refreshLEDs(0);
+  }
+  else
+  {
+    clearAll();
+  }
+}
+
+void refreshLEDs(int onLEDindex)
+{
+  startFrame();
+  for (int i = 0; i < numLEDs; i++)
+  {
+    if (i == onLEDindex)
+    {
+      ledFrame(255, 0, 0);
+    }
+    else
+    {
+      ledFrame(zero, zero, zero);
+    }
+  }
+}
+
+void startFrame()
+{
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+}
+
+void ledFrame(byte red, byte green, byte blue)
+{
+  shiftOut(dataPin, clkPin, MSBFIRST , allOnes);
+  shiftOut(dataPin, clkPin, MSBFIRST , blue);
+  shiftOut(dataPin, clkPin, MSBFIRST , green);
+  shiftOut(dataPin, clkPin, MSBFIRST , red);
+}
+
+void clearAll()
+{
+  startFrame();
+  for (int i = 0; i < numLEDs; i++)
+  {
+    ledFrame(zero, zero, zero);
   }
 }
