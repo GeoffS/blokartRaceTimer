@@ -25,9 +25,10 @@ const int numLEDs = 10;
 const byte zero = 0;
 const byte allOnes = 255;
 
-const byte red[]   = {255,   0,   0};
-const byte green[] = {  0, 255,   0};
-const byte blue[]  = {  0,   0, 255};
+const byte red[]    = {255,   0,   0};
+const byte green[]  = {  0, 255,   0};
+const byte blue[]   = {  0,   0, 255};
+const byte white[]  = {255, 255, 255};
 
 #define ULONG unsigned long
 
@@ -142,6 +143,11 @@ void addRaceEnd(int stateDuration_s)
 Button greenBtn = Button(greenBtnPin);
 Button whiteBtn = Button(whiteBtnPin);
 
+Button remoteA = Button(remoteAPin, false);
+Button remoteB = Button(remoteBPin, false);
+Button remoteC = Button(remoteCPin, false);
+Button remoteD = Button(remoteDPin, false);
+
 int currCountDownProgramIndex = 0;
 const int numCountDownPrograms = 10;
 
@@ -163,13 +169,10 @@ void setup()
     Serial.print(", ");
     Serial.println(startTimesOld_ms[i] - startTimes_ms[i]);
   }
-  pinMode(remoteAPin, INPUT);
-  pinMode(remoteBPin, INPUT);
-  pinMode(remoteCPin, INPUT);
-  pinMode(remoteDPin, INPUT);
-
-  //pinMode(greenBtnPin, INPUT_PULLUP);
-  //pinMode(whiteBtnPin, INPUT_PULLUP);
+  //pinMode(remoteAPin, INPUT);
+  //pinMode(remoteBPin, INPUT);
+  //pinMode(remoteCPin, INPUT);
+  //pinMode(remoteDPin, INPUT);
 
   pinMode(clkPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
@@ -180,7 +183,7 @@ void setup()
   digitalWrite(lightsPin, LOW);
 
   setSiren(false);
-  clearAll();
+  playStartupLEDpattern();
   refreshLEDs(currCountDownProgramIndex, blue);
   zeroTime_ms = millis();
 }
@@ -190,8 +193,12 @@ bool stopped = true;
 void loop()
 {
   // Save some states we might be using more than once:
-  bool remoteAPinState = digitalRead(remoteAPin) == HIGH;
-  bool remoteBPinState = digitalRead(remoteBPin) == HIGH;
+  //bool remoteAPinState = digitalRead(remoteAPin) == HIGH;
+  //bool remoteBPinState = digitalRead(remoteBPin) == HIGH;
+  remoteA.checkButtonState();
+  remoteB.checkButtonState();
+  remoteC.checkButtonState();
+  remoteD.checkButtonState();
 
   // Check the buttons:
   greenBtn.checkButtonState();
@@ -205,11 +212,11 @@ void loop()
 
   if (stopped)
   {
-    if(remoteBPinState)
+    if(remoteB.wasClicked())
     {
       flashMainLEDs(); // For testing the remote range.
     }
-    else if (remoteAPinState || greenBtn.wasClicked()) // Button "A" = Start Sequence
+    else if (remoteA.wasClicked() || greenBtn.wasClicked()) // Button "A" = Start Sequence
     {
       currStateCounter = 0;
       zeroTime_ms = millis();
@@ -226,7 +233,7 @@ void loop()
   }
   else // Not stopped = Runnning
   {
-    if (remoteBPinState || whiteBtn.wasClicked()) // Button "B" = Reset Sequence
+    if (remoteB.wasClicked() || whiteBtn.wasClicked()) // Button "B" = Reset Sequence
     {
       stopped = true;
       digitalWrite(lightsPin, LOW);
@@ -256,6 +263,16 @@ void loop()
   }
 }
 
+void playStartupLEDpattern()
+{
+  flashMainLEDs();
+  stepThroughAllAPA102LEDs(red);
+  stepThroughAllAPA102LEDs(green);
+  stepThroughAllAPA102LEDs(blue);
+  stepThroughAllAPA102LEDs(white);
+  clearAll();
+}
+
 void flashMainLEDs()
 {
   // Flash the big LEDs to indicate reset:
@@ -279,6 +296,15 @@ void setLED0(bool state)
   else
   {
     clearAll();
+  }
+}
+
+void stepThroughAllAPA102LEDs(const byte color[])
+{
+  for (int i = 0; i < numLEDs; i++)
+  {
+    refreshLEDs(i, color);
+    delay(50);
   }
 }
 
