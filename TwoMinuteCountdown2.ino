@@ -1,5 +1,7 @@
 // We can use this to disable the siren for testing....
-#define QUIET false
+#define QUIET true
+
+#include <Button.h>
 
 /// Remote:
 const int remoteAPin = 4;
@@ -18,10 +20,14 @@ const int whiteBtnPin = 9;
 //APA102C String:
 const int clkPin = 10;
 const int dataPin = 11;
-const int numLEDs = 30;
+const int numLEDs = 10;
 
 const byte zero = 0;
 const byte allOnes = 255;
+
+const byte red[]   = {255,   0,   0};
+const byte green[] = {  0, 255,   0};
+const byte blue[]  = {  0,   0, 255};
 
 #define ULONG unsigned long
 
@@ -133,6 +139,12 @@ void addRaceEnd(int stateDuration_s)
   stepCounter += 2;
 }
 
+Button greenBtn = Button(greenBtnPin);
+Button whiteBtn = Button(whiteBtnPin);
+
+int currCountDownProgramIndex = 0;
+const int numCountDownPrograms = 10;
+
 int currStateCounter = 0;
 ULONG zeroTime_ms;
 
@@ -156,8 +168,8 @@ void setup()
   pinMode(remoteCPin, INPUT);
   pinMode(remoteDPin, INPUT);
 
-  pinMode(greenBtnPin, INPUT_PULLUP);
-  pinMode(whiteBtnPin, INPUT_PULLUP);
+  //pinMode(greenBtnPin, INPUT_PULLUP);
+  //pinMode(whiteBtnPin, INPUT_PULLUP);
 
   pinMode(clkPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
@@ -169,6 +181,7 @@ void setup()
 
   setSiren(false);
   clearAll();
+  refreshLEDs(currCountDownProgramIndex, blue);
   zeroTime_ms = millis();
 }
 
@@ -180,44 +193,60 @@ void loop()
   bool remoteAPinState = digitalRead(remoteAPin) == HIGH;
   bool remoteBPinState = digitalRead(remoteBPin) == HIGH;
 
+  // Check the buttons:
+  greenBtn.checkButtonState();
+  whiteBtn.checkButtonState();
+
   // Debug display:
   //remoteAPinState ? refreshLEDs(1) : clearAll();
   //remoteBPinState ? refreshLEDs(2) : clearAll();
 
   // Process the states:
-  if (remoteBPinState) // Button "B" = Reset Sequence
-  {
-    stopped = true;
-    digitalWrite(lightsPin, LOW);
-    setSiren(false);
 
-    // Flash the big LEDs to indicate reset:
-    flashMainLEDs();
-  }
   if (stopped)
   {
-    if (remoteAPinState) // Button "A" = Start Sequence
+    if (remoteAPinState || greenBtn.wasClicked()) // Button "A" = Start Sequence
     {
       currStateCounter = 0;
       zeroTime_ms = millis();
       stopped = false;
       flashMainLEDs();
     }
+    else if (whiteBtn.wasClicked())
+    {
+      currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
+      Serial.print("currCountDownProgramIndex = ");
+      Serial.println(currCountDownProgramIndex);
+      refreshLEDs(currCountDownProgramIndex, blue);
+    }
   }
   else // Not stopped = Runnning
   {
-    if (currStateCounter >= numStates)
+    if (remoteBPinState || whiteBtn.wasClicked()) // Button "B" = Reset Sequence
     {
-      //digitalWrite(POST_COUNT_PIN, HIGH);
+      stopped = true;
+      digitalWrite(lightsPin, LOW);
+      setSiren(false);
+      refreshLEDs(currCountDownProgramIndex, blue);
+
+      // Flash the big LEDs to indicate reset:
+      flashMainLEDs();
     }
     else
     {
-      ULONG currTime_ms = millis() - zeroTime_ms;
-      if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
+      if (currStateCounter >= numStates)
       {
-        setSiren(spkrStates[currStateCounter]);
-        digitalWrite(lightsPin, fpStates[currStateCounter]);
-        currStateCounter++;
+        //digitalWrite(POST_COUNT_PIN, HIGH);
+      }
+      else
+      {
+        ULONG currTime_ms = millis() - zeroTime_ms;
+        if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
+        {
+          setSiren(spkrStates[currStateCounter]);
+          digitalWrite(lightsPin, fpStates[currStateCounter]);
+          currStateCounter++;
+        }
       }
     }
   }
@@ -241,7 +270,7 @@ void setLED0(bool state)
 {
   if (state)
   {
-    refreshLEDs(0);
+    refreshLEDs(0, red);
   }
   else
   {
@@ -249,20 +278,26 @@ void setLED0(bool state)
   }
 }
 
-void refreshLEDs(int onLEDindex)
+void refreshLEDs(int onLEDindex, const byte color[])
 {
+  Serial.print("onLEDindex = ");
+  Serial.println(onLEDindex);
   startFrame();
-  for (int i = 0; i < numLEDs; i++)
+  for (int i = 0; i < numLEDs + 1; i++)
   {
+    Serial.print(" ");
+    Serial.print(i);
     if (i == onLEDindex)
     {
-      ledFrame(255, 0, 0);
+      Serial.print("=onLEDindex");
+      ledFrame(color[0], color[1], color[2]);
     }
     else
     {
       ledFrame(zero, zero, zero);
     }
   }
+  Serial.println("!");
 }
 
 void startFrame()
