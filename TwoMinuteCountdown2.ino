@@ -215,8 +215,8 @@ void loop()
     else if (whiteBtn.wasClicked())
     {
       currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
-      Serial.print("currCountDownProgramIndex = ");
-      Serial.println(currCountDownProgramIndex);
+      //Serial.print("currCountDownProgramIndex = ");
+      //Serial.println(currCountDownProgramIndex);
       refreshLEDs(currCountDownProgramIndex, blue);
     }
   }
@@ -280,16 +280,16 @@ void setLED0(bool state)
 
 void refreshLEDs(int onLEDindex, const byte color[])
 {
-  Serial.print("onLEDindex = ");
-  Serial.println(onLEDindex);
+  //Serial.print("onLEDindex = ");
+  //Serial.println(onLEDindex);
   startFrame();
   for (int i = 0; i < numLEDs + 1; i++)
   {
-    Serial.print(" ");
-    Serial.print(i);
+    //Serial.print(" ");
+    //Serial.print(i);
     if (i == onLEDindex)
     {
-      Serial.print("=onLEDindex");
+      //Serial.print("=onLEDindex");
       ledFrame(color[0], color[1], color[2]);
     }
     else
@@ -297,7 +297,7 @@ void refreshLEDs(int onLEDindex, const byte color[])
       ledFrame(zero, zero, zero);
     }
   }
-  Serial.println("!");
+  //Serial.println("!");
 }
 
 void startFrame()
