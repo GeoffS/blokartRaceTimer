@@ -205,7 +205,11 @@ void loop()
 
   if (stopped)
   {
-    if (remoteAPinState || greenBtn.wasClicked()) // Button "A" = Start Sequence
+    if(remoteBPinState)
+    {
+      flashMainLEDs(); // For testing the remote range.
+    }
+    else if (remoteAPinState || greenBtn.wasClicked()) // Button "A" = Start Sequence
     {
       currStateCounter = 0;
       zeroTime_ms = millis();
