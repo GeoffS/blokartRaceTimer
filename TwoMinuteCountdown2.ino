@@ -2,6 +2,7 @@
 #define QUIET true
 
 #include <Button.h>
+#include "StartingSequenceMaker.h"
 
 /// Remote:
 const int remoteAPin = 4;
@@ -70,22 +71,23 @@ int numStates;
 int stepCounter;
 void initStartTimes()
 {
-  initShort(1);
-  addShort(1);
-  addShort(1);
-  addShort(1);
-  addLong(60);
-  addMedium(30);
-  addMedium(25);
-  addPip(1);
-  addPip(1);
-  addPip(1);
-  addPip(1);
-  addPip(1);
-  addLong(raceTime_min * SEC_PER_MIN);
-  addRaceEnd(60);
+/*
+    initShort(1);
+    addShort(1);
+    addShort(1);
+    addShort(1);
+    addLong(60);
+    addMedium(30);
+    addMedium(25);
+    addPip(1);
+    addPip(1);
+    addPip(1);
+    addPip(1);
+    addPip(1);
+    addLong(raceTime_min * SEC_PER_MIN);
+    addRaceEnd(60);
 
-  if (stepCounter > MAX_NUM_STEPS)
+    if (stepCounter > MAX_NUM_STEPS)
   {
     numStates = MAX_NUM_STEPS;
   }
@@ -93,8 +95,29 @@ void initStartTimes()
   {
     numStates = stepCounter;
   }
+*/    
+
+  StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms);
+
+  ssm.initShort(1);
+  ssm.addShort(1);
+  ssm.addShort(1);
+  ssm.addShort(1);
+  ssm.addLong(60);
+  ssm.addMedium(30);
+  ssm.addMedium(25);
+  ssm.addPip(1);
+  ssm.addPip(1);
+  ssm.addPip(1);
+  ssm.addPip(1);
+  ssm.addPip(1);
+  ssm.addLong(raceTime_min * ssm.SEC_PER_MIN);
+  ssm.addRaceEnd(60);
+
+  numStates = ssm.getNumStates();
 }
 
+/*
 void initShort(int delayTime_s)
 {
   //for(int i=0; i<numSteps; i++) startTimes_ms[i] = 0ul;
@@ -139,6 +162,7 @@ void addRaceEnd(int stateDuration_s)
   startTimes_ms[stepCounter + 1] = startTimes_ms[stepCounter] + (stateDuration_s * MSEC_PER_SEC);
   stepCounter += 2;
 }
+*/
 
 Button greenBtn = Button(greenBtnPin);
 Button whiteBtn = Button(whiteBtnPin);
@@ -156,6 +180,17 @@ ULONG zeroTime_ms;
 
 void setup()
 {
+  pinMode(clkPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+
+  pinMode(lightsPin, OUTPUT);
+  pinMode(sirenPin, OUTPUT);
+
+  digitalWrite(lightsPin, LOW);
+  
+  setSiren(false);
+  playStartupLEDpattern();
+
   Serial.begin(9600);
   initStartTimes();
   Serial.print(numStatesOld);
@@ -169,22 +204,9 @@ void setup()
     Serial.print(", ");
     Serial.println(startTimesOld_ms[i] - startTimes_ms[i]);
   }
-  //pinMode(remoteAPin, INPUT);
-  //pinMode(remoteBPin, INPUT);
-  //pinMode(remoteCPin, INPUT);
-  //pinMode(remoteDPin, INPUT);
 
-  pinMode(clkPin, OUTPUT);
-  pinMode(dataPin, OUTPUT);
-
-  pinMode(lightsPin, OUTPUT);
-  pinMode(sirenPin, OUTPUT);
-
-  digitalWrite(lightsPin, LOW);
-
-  setSiren(false);
-  playStartupLEDpattern();
   refreshLEDs(currCountDownProgramIndex, blue);
+
   zeroTime_ms = millis();
 }
 
@@ -212,7 +234,7 @@ void loop()
 
   if (stopped)
   {
-    if(remoteB.wasClicked())
+    if (remoteB.wasClicked())
     {
       flashMainLEDs(); // For testing the remote range.
     }
@@ -266,10 +288,10 @@ void loop()
 void playStartupLEDpattern()
 {
   flashMainLEDs();
+  stepThroughAllAPA102LEDs(white);
   stepThroughAllAPA102LEDs(red);
   stepThroughAllAPA102LEDs(green);
   stepThroughAllAPA102LEDs(blue);
-  stepThroughAllAPA102LEDs(white);
   clearAll();
 }
 

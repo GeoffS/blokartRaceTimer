@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 	const ULONG m = 1000ul; // ms
 	const ULONG l = 2000ul; // ms
 	ULONG raceTime_min = 5ul;
-	const int numStatesOld = 100;
+	const int numStatesOld = 28;
 	ULONG startTimesOld_ms[] = {   0ul,  0ul + s, 1000ul, 1000ul + s, 2000ul, 2000ul + s, 3000ul, 3000ul + s, 4000ul, 4000ul + l, 64000ul, 64000ul + m, 94000ul, 94000ul + m, 119000ul, 119000ul + vs, 120000ul, 120000ul + vs, 121000ul, 121000ul + vs, 122000ul, 122000ul + vs, 123000ul, 123000ul + vs, 124000ul, 124000ul + l, 124000ul + (raceTime_min * 60000ul), 124000ul + (raceTime_min * 60000ul) + 60000ul};
 
 	ULONG startTimes_ms[MAX_NUM_STEPS];
