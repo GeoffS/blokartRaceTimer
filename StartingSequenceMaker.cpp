@@ -1,6 +1,6 @@
 #include "StartingSequenceMaker.h"
 
-StartingSequenceMaker::StartingSequenceMaker(ULONG startTimesArray[])
+StartingSequenceMaker::StartingSequenceMaker(ULONG startTimesArray[], const int maxNumStates): startTimesArraySize(maxNumStates)
 {
 	startTimes_ms = startTimesArray;
 }
@@ -19,7 +19,7 @@ const ULONG preDelay_ms = 5000ul;
 const ULONG SEC_PER_MIN = 60;
 const ULONG MSEC_PER_SEC = 1000ul;
 
-#define MAX_NUM_STEPS 30
+
 
 /*
 void initStartTimes()
@@ -62,7 +62,7 @@ void StartingSequenceMaker::initShort(int delayTime_s)
 
 void StartingSequenceMaker::addPulse(ULONG pulseDuration_ms, ULONG delayTime_s)
 {
-  if (stepCounter >= MAX_NUM_STEPS) return;
+  if (stepCounter >= startTimesArraySize) return;
   startTimes_ms[stepCounter + 1] = startTimes_ms[stepCounter] + pulseDuration_ms;
   startTimes_ms[stepCounter + 2] = startTimes_ms[stepCounter] + (delayTime_s * MSEC_PER_SEC);
   stepCounter += 2;
@@ -90,7 +90,7 @@ void StartingSequenceMaker::addPip(int timeToNextPulse_s)
 
 void StartingSequenceMaker::addRaceEnd(int stateDuration_s)
 {
-  if (stepCounter >= MAX_NUM_STEPS) return;
+  if (stepCounter >= startTimesArraySize) return;
   startTimes_ms[stepCounter + 1] = startTimes_ms[stepCounter] + (stateDuration_s * MSEC_PER_SEC);
   stepCounter += 2;
 }
