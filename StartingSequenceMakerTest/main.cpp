@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
 	ULONG startTimes_ms[MAX_NUM_STEPS];
 	printf("Hello StartingSequenceMaker\n");
-	StartingSequenceMaker ssm(startTimes_ms);
+	StartingSequenceMaker ssm(startTimes_ms, 200);
 
 	ssm.initShort(1);
 	ssm.addShort(1);
