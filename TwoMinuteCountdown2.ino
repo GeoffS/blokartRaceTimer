@@ -42,7 +42,32 @@ bool spkrStates[MAX_NUM_STEPS];
 bool fpStates[MAX_NUM_STEPS];
 StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
-void initStates()
+int currCountDownProgramIndex = 0;
+const int numCountDownPrograms = 6;
+
+bool initStates()
+{
+  switch (currCountDownProgramIndex)
+  {
+    case 0:
+      initStates_2minDU_4minRace();
+      break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    default:
+      playStartupLEDpattern();
+      refreshLEDs(currCountDownProgramIndex+3, blue);
+      return false;
+      break;
+  }
+  return true;
+}
+
+void initStates_2minDU_4minRace()
 {
   ssm.initShort(1);
   ssm.addShort(1);
@@ -56,7 +81,7 @@ void initStates()
   ssm.addPip(1);
   ssm.addPip(1);
   ssm.addPip(1);
-  ssm.addLong(raceTime_min * ssm.SEC_PER_MIN);
+  ssm.addLong(5 * ssm.SEC_PER_MIN);
   ssm.addRaceEnd(60);
 }
 
@@ -67,9 +92,6 @@ Button remoteA = Button(remoteAPin, false);
 Button remoteB = Button(remoteBPin, false);
 Button remoteC = Button(remoteCPin, false);
 Button remoteD = Button(remoteDPin, false);
-
-int currCountDownProgramIndex = 0;
-const int numCountDownPrograms = 10;
 
 int currStateCounter = 0;
 ULONG zeroTime_ms;
@@ -89,8 +111,8 @@ void setup()
 
   Serial.begin(9600);
   Serial.println("Version: " TMCD_VERSION);
-  initStates();
-  refreshLEDs(currCountDownProgramIndex, blue);
+  //initStates();
+  refreshLEDs(currCountDownProgramIndex+3, blue);
 
   zeroTime_ms = millis();
 }
@@ -118,6 +140,7 @@ void loop()
     }
     else if (remoteA.wasClicked() || greenBtn.wasClicked()) // Button "A" = Start Sequence
     {
+      if(!initStates()) return;
       currStateCounter = 0;
       zeroTime_ms = millis();
       stopped = false;
@@ -128,7 +151,7 @@ void loop()
       currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
       //Serial.print("currCountDownProgramIndex = ");
       //Serial.println(currCountDownProgramIndex);
-      refreshLEDs(currCountDownProgramIndex, blue);
+      refreshLEDs(currCountDownProgramIndex+3, blue);
     }
   }
   else // Not stopped = Runnning
@@ -138,7 +161,7 @@ void loop()
       stopped = true;
       digitalWrite(lightsPin, LOW);
       setSiren(false);
-      refreshLEDs(currCountDownProgramIndex, blue);
+      refreshLEDs(currCountDownProgramIndex+3, blue);
 
       // Flash the big LEDs to indicate reset:
       flashMainLEDs();
