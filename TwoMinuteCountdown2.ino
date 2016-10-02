@@ -1,5 +1,5 @@
 // We can use this to disable the siren for testing....
-#define QUIET true
+#define QUIET false
 
 #include <Button.h>
 #include "StartingSequenceMaker.h"
@@ -45,24 +45,29 @@ StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpS
 int currCountDownProgramIndex = 0;
 const int numCountDownPrograms = 6;
 
+bool undefinedProgram()
+{
+  playStartupLEDpattern();
+  refreshLEDs(currCountDownProgramIndex + 3, blue);
+  return false;
+}
+
 bool initStates()
 {
   switch (currCountDownProgramIndex)
   {
     case 0:
-      initStates_2minDU_4minRace();
+      ssm.make_1minDU_NoRace();
       break;
-    case 1:
-    case 2:
+    case 1: return undefinedProgram();
+    case 2: return undefinedProgram();
     case 3:
-    case 4:
-    case 5:
-    case 6:
-    default:
-      playStartupLEDpattern();
-      refreshLEDs(currCountDownProgramIndex+3, blue);
-      return false;
+      ssm.make_2minDU_5minRace();
       break;
+    case 4: return undefinedProgram();
+    case 5: return undefinedProgram();
+    case 6: return undefinedProgram();
+    default: return undefinedProgram();
   }
   return true;
 }
@@ -105,14 +110,14 @@ void setup()
   pinMode(sirenPin, OUTPUT);
 
   digitalWrite(lightsPin, LOW);
-  
+
   setSiren(false);
   playStartupLEDpattern();
 
   Serial.begin(9600);
   Serial.println("Version: " TMCD_VERSION);
   //initStates();
-  refreshLEDs(currCountDownProgramIndex+3, blue);
+  refreshLEDs(currCountDownProgramIndex + 3, blue);
 
   zeroTime_ms = millis();
 }
@@ -140,7 +145,7 @@ void loop()
     }
     else if (remoteA.wasClicked() || greenBtn.wasClicked()) // Button "A" = Start Sequence
     {
-      if(!initStates()) return;
+      if (!initStates()) return;
       currStateCounter = 0;
       zeroTime_ms = millis();
       stopped = false;
@@ -151,7 +156,7 @@ void loop()
       currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
       //Serial.print("currCountDownProgramIndex = ");
       //Serial.println(currCountDownProgramIndex);
-      refreshLEDs(currCountDownProgramIndex+3, blue);
+      refreshLEDs(currCountDownProgramIndex + 3, blue);
     }
   }
   else // Not stopped = Runnning
@@ -161,7 +166,7 @@ void loop()
       stopped = true;
       digitalWrite(lightsPin, LOW);
       setSiren(false);
-      refreshLEDs(currCountDownProgramIndex+3, blue);
+      refreshLEDs(currCountDownProgramIndex + 3, blue);
 
       // Flash the big LEDs to indicate reset:
       flashMainLEDs();
@@ -178,7 +183,7 @@ void loop()
         if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
         {
           setSiren(spkrStates[currStateCounter]);
-          digitalWrite(lightsPin, fpStates[currStateCounter]?HIGH:LOW);
+          digitalWrite(lightsPin, fpStates[currStateCounter] ? HIGH : LOW);
           currStateCounter++;
         }
       }
