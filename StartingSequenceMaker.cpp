@@ -1,8 +1,9 @@
 #include "StartingSequenceMaker.h"
 
-StartingSequenceMaker::StartingSequenceMaker(ULONG startTimesArray[], const int maxNumStates): startTimesArraySize(maxNumStates)
+StartingSequenceMaker::StartingSequenceMaker(ULONG startTimesArray[], bool fpStatesArray[], const int maxNumStates): startTimesArraySize(maxNumStates)
 {
 	startTimes_ms = startTimesArray;
+	fpStates = fpStatesArray;
 }
 
 StartingSequenceMaker::~StartingSequenceMaker()

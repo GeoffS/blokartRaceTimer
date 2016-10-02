@@ -4,7 +4,7 @@
 #include <Button.h>
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "0.1"
+#define TMCD_VERSION "0.2"
 
 /// Remote:
 const int remoteAPin = 4;
@@ -46,15 +46,16 @@ ULONG startTimes_ms[MAX_NUM_STEPS];
 //                        ---------   ---------   ---------   ---------  ----------   ---------   ---------   ---------   ---------   ---------   ---------   ---------  ----------   ---------   ---------   ---------  ----------
 //                          0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18    19    20    21    22    23    25    26    27    28
 bool spkrStates[]     = {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, false};
-int wpStates[]        = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW};
-int duStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW};
-int rpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH,  LOW,  LOW};
-int fpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH,  LOW};
+//int wpStates[]        = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW};
+//int duStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW};
+//int rpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH,  LOW,  LOW};
+//int fpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH,  LOW};
+bool fpStates[]        = { false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false, true,  false};
 
 int numStates;
 void initStartTimes()
 {
-  StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, MAX_NUM_STEPS);
+  StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, 0, MAX_NUM_STEPS);
 
   ssm.initShort(1);
   ssm.addShort(1);
@@ -169,7 +170,7 @@ void loop()
         if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
         {
           setSiren(spkrStates[currStateCounter]);
-          digitalWrite(lightsPin, fpStates[currStateCounter]);
+          digitalWrite(lightsPin, fpStates[currStateCounter]?HIGH:LOW);
           currStateCounter++;
         }
       }
