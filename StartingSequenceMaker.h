@@ -6,7 +6,7 @@
 class StartingSequenceMaker
 {
 public:
-	StartingSequenceMaker(ULONG startTimesArray[], bool fpStatesArray[], const int maxNumStates);
+	StartingSequenceMaker(ULONG startTimesArray[], bool spkrStatesArray[], bool fpStatesArray[], const int maxNumStates);
 	~StartingSequenceMaker();
 	void initShort(int delayTime_s);
 	void addPulse(ULONG pulseDuration_ms, ULONG delayTime_s);
@@ -25,6 +25,7 @@ public:
 private:
 	int stepCounter;
 	ULONG * startTimes_ms;
+	bool * spkrStates;
 	bool * fpStates;
 	const int startTimesArraySize;
 };

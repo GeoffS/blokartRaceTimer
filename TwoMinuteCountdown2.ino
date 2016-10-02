@@ -33,30 +33,17 @@ const byte green[]  = {  0, 255,   0};
 const byte blue[]   = {  0,   0, 255};
 const byte white[]  = {255, 255, 255};
 
-const ULONG raceTime_min = 5ul;
+const ULONG raceTime_min = 1ul;
 const ULONG preDelay_ms = 5000ul;
 
-#define MAX_NUM_STEPS 200
+#define MAX_NUM_STEPS 100
 ULONG startTimes_ms[MAX_NUM_STEPS];
+bool spkrStates[MAX_NUM_STEPS];
+bool fpStates[MAX_NUM_STEPS];
+StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
-//                                                                        Dial-Up      1-Minute     30-Sec      5-Sec       4-Sec       3-Sec       2-Sec       1-Sec      Race         Race
-//                          Warn 1      Warn 2      Warn 3      Warn 4     Start        Warning     Warning    Warning     Warning     Warning     Warning     Warning     Start        End
-//                                  1s          1s          1s          1s         60s         30s         25s          1s          1s          1s          1s          1s        Race
-//                            S           S           S           S          L            M           M           L           P           P           P           P           L
-//                        ---------   ---------   ---------   ---------  ----------   ---------   ---------   ---------   ---------   ---------   ---------   ---------  ----------   ---------   ---------   ---------  ----------
-//                          0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18    19    20    21    22    23    25    26    27    28
-bool spkrStates[]     = {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, false};
-//int wpStates[]        = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW};
-//int duStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH,  LOW,  LOW,  LOW};
-//int rpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH, HIGH,  LOW,  LOW};
-//int fpStates[]        = { LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW,  LOW, HIGH,  LOW};
-bool fpStates[]        = { false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false, true,  false};
-
-int numStates;
-void initStartTimes()
+void initStates()
 {
-  StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, 0, MAX_NUM_STEPS);
-
   ssm.initShort(1);
   ssm.addShort(1);
   ssm.addShort(1);
@@ -71,8 +58,6 @@ void initStartTimes()
   ssm.addPip(1);
   ssm.addLong(raceTime_min * ssm.SEC_PER_MIN);
   ssm.addRaceEnd(60);
-
-  numStates = ssm.getNumStates();
 }
 
 Button greenBtn = Button(greenBtnPin);
@@ -104,7 +89,7 @@ void setup()
 
   Serial.begin(9600);
   Serial.println("Version: " TMCD_VERSION);
-  initStartTimes();
+  initStates();
   refreshLEDs(currCountDownProgramIndex, blue);
 
   zeroTime_ms = millis();
@@ -160,7 +145,7 @@ void loop()
     }
     else
     {
-      if (currStateCounter >= numStates)
+      if (currStateCounter >= ssm.getNumStates())
       {
         //digitalWrite(POST_COUNT_PIN, HIGH);
       }
