@@ -9,7 +9,8 @@ public:
 	StartingSequenceMaker(ULONG startTimesArray[], bool spkrStatesArray[], bool fpStatesArray[], const int maxNumStates);
 	~StartingSequenceMaker();
 	
-	void make_2minDU_5minRace();
+	void make_2minDU_XminRace( int raceTime_min );
+	void make_2minDU_NoRace();
 	void make_1minDU_NoRace();
 	
 	void initShort(int delayTime_s);

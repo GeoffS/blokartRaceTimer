@@ -59,13 +59,19 @@ bool initStates()
     case 0:
       ssm.make_1minDU_NoRace();
       break;
-    case 1: return undefinedProgram();
-    case 2: return undefinedProgram();
-    case 3:
-      ssm.make_2minDU_5minRace();
+    case 1: return undefinedProgram(); // 1min DU, 5min race
+    case 2: 
+      ssm.make_2minDU_NoRace();
       break;
-    case 4: return undefinedProgram();
-    case 5: return undefinedProgram();
+    case 3:
+      ssm.make_2minDU_XminRace(5);
+      break;
+    case 4: 
+      ssm.make_2minDU_XminRace(10);
+      break;
+    case 5:
+      ssm.make_2minDU_XminRace(15);
+      break;
     case 6: return undefinedProgram();
     default: return undefinedProgram();
   }
