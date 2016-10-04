@@ -1,5 +1,5 @@
 // We can use this to disable the siren for testing....
-#define NO_12V true
+#define NO_12V false
 
 #include <Button.h>
 #include <Blinker.h>
