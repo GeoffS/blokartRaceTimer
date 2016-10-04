@@ -5,7 +5,7 @@
 #include <Blinker.h>
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "0.2"
+#define TMCD_VERSION "1.0"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -51,8 +51,7 @@ bool spkrStates[MAX_NUM_STEPS];
 bool fpStates[MAX_NUM_STEPS];
 StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
-/*const*/ Blinker mediumBlink(750, 200);
-//const Blinker slow(4000, 2000);
+Blinker mediumBlink(750, 200);
 
 int currCountDownProgramIndex = 0;
 const int numCountDownPrograms = 6;
@@ -71,7 +70,9 @@ bool initStates()
     case 0:
       ssm.make_1minDU_NoRace();
       break;
-    case 1: return undefinedProgram(); // 1min DU, 5min race
+    case 1:
+      ssm.make_1minDU_XminRace(5);
+      break;
     case 2:
       ssm.make_2minDU_NoRace();
       break;

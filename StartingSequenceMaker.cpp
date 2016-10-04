@@ -91,6 +91,23 @@ void StartingSequenceMaker::make_1minDU_NoRace()
 	addLong(30);
 }
 
+void StartingSequenceMaker::make_1minDU_XminRace( int raceTime_min )
+{
+	initShort(1);
+	addShort(1);
+	addShort(1);
+	addShort(1);
+	addLong(30);
+	addMedium(25);
+	addPip(1);
+	addPip(1);
+	addPip(1);
+	addPip(1);
+	addPip(1);
+	addLong(raceTime_min * SEC_PER_MIN);
+	addRaceEnd(60);
+}
+
 void StartingSequenceMaker::addPulse(ULONG pulseDuration_ms, ULONG delayTime_s)
 {
   if (stepCounter >= startTimesArraySize) return;

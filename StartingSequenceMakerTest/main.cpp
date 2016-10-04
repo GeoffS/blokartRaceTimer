@@ -114,7 +114,6 @@ bool check_2minDU_XminRace( int raceTime_min)
 					   fpStatesOld, fpStates);
 }
 
-
 bool test_2minDU_5minRaceOri()
 {
 	printf("test_2minDU_5minRaceOri\n");
@@ -157,7 +156,7 @@ bool test_2minDU_15minRace()
 
 bool test_2minDU_NoRace()
 {
-	printf("test_1minDU_NoRace\n");
+	printf("test_2minDU_NoRace\n");
 	const int numStatesOld = 26;
 	ULONG startTimesOld_ms[] = {   0ul,  0ul + s, 1000ul, 1000ul + s, 2000ul, 2000ul + s, 3000ul, 3000ul + s, 4000ul, 4000ul + l, 64000ul, 64000ul + m, 94000ul, 94000ul + m, 119000ul, 119000ul + vs, 120000ul, 120000ul + vs, 121000ul, 121000ul + vs, 122000ul, 122000ul + vs, 123000ul, 123000ul + vs, 124000ul, 124000ul + l};
 	bool spkrStatesOld[]     = {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false};
@@ -197,6 +196,33 @@ bool test_1minDU_NoRace()
 					   fpStatesOld, fpStates);
 }
 
+bool test_1minDU_5minRace()
+{
+	printf("test_1minDU_5minRace\n");
+	ULONG raceTime_min = 5ul;
+	const int numStatesOld = 26;
+	//ULONG startTimesOld_ms[] = {   0ul,  0ul + s, 1000ul, 1000ul + s, 2000ul, 2000ul + s, 3000ul, 3000ul + s, 4000ul, 4000ul + l, 64000ul, 64000ul + m, 94000ul, 94000ul + m, 119000ul, 119000ul + vs, 120000ul, 120000ul + vs, 121000ul, 121000ul + vs, 122000ul, 122000ul + vs, 123000ul, 123000ul + vs, 124000ul, 124000ul + l, 124000ul + (raceTime_min * 60000ul), 124000ul + (raceTime_min * 60000ul) + 60000ul};
+	//bool spkrStatesOld[]     = {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, false};
+	//bool fpStatesOld[]       = { false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false, true,  false};
+	
+	ULONG startTimesOld_ms[] = {   0ul,  0ul + s, 1000ul, 1000ul + s, 2000ul, 2000ul + s, 3000ul, 3000ul + s, 4000ul, 4000ul + l, 34000ul, 34000ul + m, 59000ul, 59000ul + vs, 60000ul, 60000ul + vs, 61000ul, 61000ul + vs, 62000ul, 62000ul + vs, 63000ul, 63000ul + vs, 64000ul, 64000ul + l, 64000ul + (raceTime_min * 60000ul), 64000ul + (raceTime_min * 60000ul) + 60000ul};
+	bool spkrStatesOld[]     = {true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, false};
+	bool fpStatesOld[]       = {false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false, true, false};
+
+
+	ULONG startTimes_ms[MAX_NUM_STEPS];
+	bool spkrStates[MAX_NUM_STEPS];
+	bool fpStates[MAX_NUM_STEPS];
+	StartingSequenceMaker ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+
+	ssm.make_1minDU_XminRace( 5 );
+
+	return checkStates(numStatesOld, ssm.getNumStates(), 
+	                   startTimesOld_ms, startTimes_ms,
+					   spkrStatesOld, spkrStates,
+					   fpStatesOld, fpStates);
+}
+
 int main(int argc, char **argv)
 {
 	bool failure = false;
@@ -206,6 +232,7 @@ int main(int argc, char **argv)
 	failure |= test_2minDU_10minRace();
 	failure |= test_2minDU_15minRace();
 	failure |= test_1minDU_NoRace();
+	failure |= test_1minDU_5minRace();
 	
 	printPassFail(failure);
 
