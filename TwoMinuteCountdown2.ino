@@ -1,10 +1,13 @@
 // We can use this to disable the siren for testing....
-#define QUIET false
+#define NO_12V true
 
 #include <Button.h>
+#include <Blinker.h>
 #include "StartingSequenceMaker.h"
 
 #define TMCD_VERSION "0.2"
+
+#define BOOL2HIGHLOW ?HIGH:LOW
 
 /// Remote:
 const int remoteAPin = 4;
@@ -28,10 +31,16 @@ const int numLEDs = 10;
 const byte zero = 0;
 const byte allOnes = 255;
 
-const byte red[]    = {255,   0,   0};
-const byte green[]  = {  0, 255,   0};
-const byte blue[]   = {  0,   0, 255};
-const byte white[]  = {255, 255, 255};
+byte off[]    = {  0,   0,   0};
+byte red[]    = {255,   0,   0};
+byte green[]  = {  0, 255,   0};
+byte blue[]   = {  0,   0, 255};
+byte white[]  = {255, 255, 255};
+
+byte * statusColor;
+byte * soundColor;
+byte * lightsColor;
+byte * currCountDownProgramColor;
 
 const ULONG raceTime_min = 1ul;
 const ULONG preDelay_ms = 5000ul;
@@ -42,13 +51,16 @@ bool spkrStates[MAX_NUM_STEPS];
 bool fpStates[MAX_NUM_STEPS];
 StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
+/*const*/ Blinker mediumBlink(750, 200);
+//const Blinker slow(4000, 2000);
+
 int currCountDownProgramIndex = 0;
 const int numCountDownPrograms = 6;
 
 bool undefinedProgram()
 {
   playStartupLEDpattern();
-  refreshLEDs(currCountDownProgramIndex + 3, blue);
+  refreshLEDs();
   return false;
 }
 
@@ -60,13 +72,13 @@ bool initStates()
       ssm.make_1minDU_NoRace();
       break;
     case 1: return undefinedProgram(); // 1min DU, 5min race
-    case 2: 
+    case 2:
       ssm.make_2minDU_NoRace();
       break;
     case 3:
       ssm.make_2minDU_XminRace(5);
       break;
-    case 4: 
+    case 4:
       ssm.make_2minDU_XminRace(10);
       break;
     case 5:
@@ -123,7 +135,13 @@ void setup()
   Serial.begin(9600);
   Serial.println("Version: " TMCD_VERSION);
   //initStates();
-  refreshLEDs(currCountDownProgramIndex + 3, blue);
+  //refreshLEDs(currCountDownProgramIndex + 3, blue);
+
+  statusColor = red;
+  soundColor = off;
+  lightsColor = off;
+  currCountDownProgramColor = blue;
+  refreshLEDs();
 
   zeroTime_ms = millis();
 }
@@ -132,6 +150,10 @@ bool stopped = true;
 
 void loop()
 {
+  // Update the blinker:
+  unsigned long now = millis();
+  mediumBlink.updateLedOnFlag(&now);
+
   // Check the remote:
   remoteA.checkButtonState();
   remoteB.checkButtonState();
@@ -145,6 +167,7 @@ void loop()
   // Process the states:
   if (stopped)
   {
+    statusColor = red;
     if (remoteB.wasClicked())
     {
       flashMainLEDs(); // For testing the remote range.
@@ -162,17 +185,17 @@ void loop()
       currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
       //Serial.print("currCountDownProgramIndex = ");
       //Serial.println(currCountDownProgramIndex);
-      refreshLEDs(currCountDownProgramIndex + 3, blue);
+      //refreshLEDs(currCountDownProgramIndex + 3, blue);
     }
   }
   else // Not stopped = Runnning
   {
+    statusColor = mediumBlink.ledOn?green:off;
     if (remoteB.wasClicked() || whiteBtn.wasClicked()) // Button "B" = Reset Sequence
     {
       stopped = true;
       digitalWrite(lightsPin, LOW);
       setSiren(false);
-      refreshLEDs(currCountDownProgramIndex + 3, blue);
 
       // Flash the big LEDs to indicate reset:
       flashMainLEDs();
@@ -189,12 +212,14 @@ void loop()
         if (currTime_ms >= (startTimes_ms[currStateCounter] + preDelay_ms))
         {
           setSiren(spkrStates[currStateCounter]);
-          digitalWrite(lightsPin, fpStates[currStateCounter] ? HIGH : LOW);
+          setLights(fpStates[currStateCounter]);
+          //digitalWrite(lightsPin, fpStates[currStateCounter] ? HIGH : LOW);
           currStateCounter++;
         }
       }
     }
   }
+  refreshLEDs();
 }
 
 void playStartupLEDpattern()
@@ -210,39 +235,90 @@ void playStartupLEDpattern()
 void flashMainLEDs()
 {
   // Flash the big LEDs to indicate reset:
-  digitalWrite(lightsPin, HIGH);
+  setLights(true);
+  refreshLEDs();
   delay(200);
-  digitalWrite(lightsPin, LOW);
+  setLights(false);
+  refreshLEDs();
 }
 
 void setSiren(bool state)
 {
-  if (!QUIET) digitalWrite(sirenPin, state ? HIGH : LOW);
-  setLED0(state);
+  if (!NO_12V) digitalWrite(sirenPin, state ? HIGH : LOW);
+  soundColor = state ? white : off;
 }
 
-void setLED0(bool state)
+void setLights(bool state)
 {
-  if (state)
-  {
-    refreshLEDs(0, red);
-  }
-  else
-  {
-    clearAll();
-  }
+  if (!NO_12V) digitalWrite(lightsPin, state ? HIGH : LOW);
+  lightsColor = state ? red : off;
 }
 
 void stepThroughAllAPA102LEDs(const byte color[])
 {
   for (int i = 0; i < numLEDs; i++)
   {
-    refreshLEDs(i, color);
+    lightOneLED(i, color);
     delay(50);
   }
 }
 
-void refreshLEDs(int onLEDindex, const byte color[])
+void refreshLEDs()
+{
+  unsigned long start = millis();
+  startFrame();
+  ledFrame(statusColor);
+  ledFrame(soundColor);
+  ledFrame(lightsColor);
+  for (int i = 3; i < numLEDs + 1; i++)
+  {
+    if (i == (currCountDownProgramIndex + 3))
+    {
+      //Serial.print("=onLEDindex");
+      ledFrame(currCountDownProgramColor);
+    }
+    else
+    {
+      ledFrame(off);
+    }
+  }
+  unsigned long delta_ms = millis() - start;
+  Serial.print("refreshLEDs time = ");
+  Serial.print(delta_ms);
+  Serial.println(" ms");
+}
+
+/*
+  void refreshLEDs()
+  {
+  //Serial.print("onLEDindexunsigned long start = ");
+  //Serial.println(onLEDindex);millis();
+  startFrame();
+  ledFrame(statusColor);
+  ledFrame(soundColor);
+  ledFrame(lightsColor);
+  for (int i = 0; i < numLEDs + 1; i++)
+  {
+    //Serial.print(" ");
+    //Serial.print(i);
+    if (i == (currCountDownProgramIndex + 3))
+    {
+      //Serial.print("=onLEDindex");
+      ledFrame(color[0], color[1], color[2]); ledFrame(currCountDownProgramColor);
+    }
+    else
+    {
+      ledFrame(off);
+    }
+  }
+  //Serial.println("!");unsigned long delta_ms = millis() - start;
+  Serial.print("refreshLEDs time = ");
+  Serial.print(delta_ms);
+  Serial.println(" ms");
+  }
+*/
+
+void lightOneLED(int onLEDindex, const byte color[])
 {
   //Serial.print("onLEDindex = ");
   //Serial.println(onLEDindex);
@@ -254,11 +330,11 @@ void refreshLEDs(int onLEDindex, const byte color[])
     if (i == onLEDindex)
     {
       //Serial.print("=onLEDindex");
-      ledFrame(color[0], color[1], color[2]);
+      ledFrame(color);
     }
     else
     {
-      ledFrame(zero, zero, zero);
+      ledFrame(off);
     }
   }
   //Serial.println("!");
@@ -272,12 +348,12 @@ void startFrame()
   shiftOut(dataPin, clkPin, MSBFIRST , zero);
 }
 
-void ledFrame(byte red, byte green, byte blue)
+void ledFrame(const byte color[])
 {
   shiftOut(dataPin, clkPin, MSBFIRST , allOnes);
-  shiftOut(dataPin, clkPin, MSBFIRST , blue);
-  shiftOut(dataPin, clkPin, MSBFIRST , green);
-  shiftOut(dataPin, clkPin, MSBFIRST , red);
+  shiftOut(dataPin, clkPin, MSBFIRST , color[2]);
+  shiftOut(dataPin, clkPin, MSBFIRST , color[1]);
+  shiftOut(dataPin, clkPin, MSBFIRST , color[0]);
 }
 
 void clearAll()
@@ -285,6 +361,6 @@ void clearAll()
   startFrame();
   for (int i = 0; i < numLEDs; i++)
   {
-    ledFrame(zero, zero, zero);
+    ledFrame(off);
   }
 }
