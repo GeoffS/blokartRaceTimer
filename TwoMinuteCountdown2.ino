@@ -5,7 +5,7 @@
 #include <Blinker.h>
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "1.0"
+#define TMCD_VERSION "1.0.1"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -184,14 +184,11 @@ void loop()
     else if (whiteBtn.wasClicked())
     {
       currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
-      //Serial.print("currCountDownProgramIndex = ");
-      //Serial.println(currCountDownProgramIndex);
-      //refreshLEDs(currCountDownProgramIndex + 3, blue);
     }
   }
   else // Not stopped = Runnning
   {
-    statusColor = mediumBlink.ledOn?green:off;
+    statusColor = mediumBlink.ledOn ? green : off;
     if (remoteB.wasClicked() || whiteBtn.wasClicked()) // Button "B" = Reset Sequence
     {
       stopped = true;
@@ -233,6 +230,13 @@ void playStartupLEDpattern()
   clearAll();
 }
 
+void setStoppedState()
+{
+  stopped = true;
+  setLights(false);
+  setSiren(false);
+}
+
 void flashMainLEDs()
 {
   // Flash the big LEDs to indicate reset:
@@ -243,15 +247,27 @@ void flashMainLEDs()
   refreshLEDs();
 }
 
+void set12Vpin(int pin, bool state)
+{
+  if (state)
+  {
+    if (!NO_12V) digitalWrite(pin, HIGH);
+  }
+  else
+  {
+    digitalWrite(pin, LOW); // Always set the pin LOW, "just in case"...
+  }
+}
+
 void setSiren(bool state)
 {
-  if (!NO_12V) digitalWrite(sirenPin, state ? HIGH : LOW);
+  set12Vpin(sirenPin, state);
   soundColor = state ? white : off;
 }
 
 void setLights(bool state)
 {
-  if (!NO_12V) digitalWrite(lightsPin, state ? HIGH : LOW);
+  set12Vpin(lightsPin, state);
   lightsColor = state ? red : off;
 }
 
@@ -266,7 +282,7 @@ void stepThroughAllAPA102LEDs(const byte color[])
 
 void refreshLEDs()
 {
-  unsigned long start = millis();
+  //unsigned long start = millis();
   startFrame();
   ledFrame(statusColor);
   ledFrame(soundColor);
@@ -275,7 +291,6 @@ void refreshLEDs()
   {
     if (i == (currCountDownProgramIndex + 3))
     {
-      //Serial.print("=onLEDindex");
       ledFrame(currCountDownProgramColor);
     }
     else
@@ -283,41 +298,11 @@ void refreshLEDs()
       ledFrame(off);
     }
   }
-  unsigned long delta_ms = millis() - start;
-  Serial.print("refreshLEDs time = ");
-  Serial.print(delta_ms);
-  Serial.println(" ms");
+  //unsigned long delta_ms = millis() - start;
+  //Serial.print("refreshLEDs time = ");
+  //Serial.print(delta_ms);
+  //Serial.println(" ms");
 }
-
-/*
-  void refreshLEDs()
-  {
-  //Serial.print("onLEDindexunsigned long start = ");
-  //Serial.println(onLEDindex);millis();
-  startFrame();
-  ledFrame(statusColor);
-  ledFrame(soundColor);
-  ledFrame(lightsColor);
-  for (int i = 0; i < numLEDs + 1; i++)
-  {
-    //Serial.print(" ");
-    //Serial.print(i);
-    if (i == (currCountDownProgramIndex + 3))
-    {
-      //Serial.print("=onLEDindex");
-      ledFrame(color[0], color[1], color[2]); ledFrame(currCountDownProgramColor);
-    }
-    else
-    {
-      ledFrame(off);
-    }
-  }
-  //Serial.println("!");unsigned long delta_ms = millis() - start;
-  Serial.print("refreshLEDs time = ");
-  Serial.print(delta_ms);
-  Serial.println(" ms");
-  }
-*/
 
 void lightOneLED(int onLEDindex, const byte color[])
 {
