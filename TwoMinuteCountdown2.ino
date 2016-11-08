@@ -267,14 +267,19 @@ void stepThroughAllAPA102LEDs(byte color[])
 {
   for (int i = 0; i < numLEDs; i++)
   {
+#ifdef STATUS_LEDS_REVERSED
+    lightOneLED(numLEDs-i-1, color);
+#else
     lightOneLED(i, color);
+#endif
+    //lightOneLED(i, color);
     delay(50);
   }
 }
 
 void refreshLEDs()
 {
-  
+
   startFrame();
   //ledFrame(statusColor);
   //ledFrame(soundColor);
@@ -295,13 +300,13 @@ void refreshLEDs()
       statusLEDcolors[i] = off;
     }
   }
-  for(int i=0; i< numLEDs; i++)
+  for (int i = 0; i < numLEDs; i++)
   {
-     #ifdef STATUS_LEDS_REVERSED
-     ledFrame(statusLEDcolors[numLEDs-i-1]);
-     #else
-     ledFrame(statusLEDcolors[i]);
-     #endif
+#ifdef STATUS_LEDS_REVERSED
+    ledFrame(statusLEDcolors[numLEDs - i - 1]);
+#else
+    ledFrame(statusLEDcolors[i]);
+#endif
   }
   endFrame();
 }
