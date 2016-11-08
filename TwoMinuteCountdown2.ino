@@ -1,32 +1,22 @@
 // We can use this to disable the siren for testing....
 #define NO_12V false
+//#define HARDWARE HWv1
+#define HARDWARE HWv2
+
+// Stringify macro expansion...
+#define xstr(s) str(s)
+#define str(s) #s
+
+#define HARDWARE_INCLUDE xstr(HARDWARE.h)
 
 #include <Button.h>
 #include <Blinker.h>
+#include HARDWARE_INCLUDE
 #include "StartingSequenceMaker.h"
 
 #define TMCD_VERSION "1.0.1"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
-
-/// Remote:
-const int remoteAPin = 4;
-const int remoteBPin = 2;
-const int remoteCPin = 5;
-const int remoteDPin = 3;
-
-// 12V Outputs:
-const int lightsPin = 6;
-const int sirenPin = 7;
-
-// Buttons:
-const int greenBtnPin = 8;
-const int whiteBtnPin = 9;
-
-//APA102C String:
-const int clkPin = 10;
-const int dataPin = 11;
-const int numLEDs = 10;
 
 const byte zero = 0;
 const byte allOnes = 255;
