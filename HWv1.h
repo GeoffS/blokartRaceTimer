@@ -13,7 +13,7 @@ const int greenBtnPin = 8;
 const int whiteBtnPin = 9;
 
 //APA102C String:
-#define STATUS_LEDS TOP
+#undef STATUS_LEDS_REVERSED
 const int clkPin = 10;
 const int dataPin = 11;
 const int numLEDs = 10;

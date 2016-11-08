@@ -32,6 +32,8 @@ byte * soundColor;
 byte * lightsColor;
 byte * currCountDownProgramColor;
 
+byte * statusLEDcolors[numLEDs];
+
 const ULONG raceTime_min = 1ul;
 const ULONG preDelay_ms = 5000ul;
 
@@ -261,7 +263,7 @@ void setLights(bool state)
   lightsColor = state ? red : off;
 }
 
-void stepThroughAllAPA102LEDs(const byte color[])
+void stepThroughAllAPA102LEDs(byte color[])
 {
   for (int i = 0; i < numLEDs; i++)
   {
@@ -272,34 +274,44 @@ void stepThroughAllAPA102LEDs(const byte color[])
 
 void refreshLEDs()
 {
-  //unsigned long start = millis();
+  
   startFrame();
-  ledFrame(statusColor);
-  ledFrame(soundColor);
-  ledFrame(lightsColor);
-  for (int i = 3; i < numLEDs + 1; i++)
+  //ledFrame(statusColor);
+  //ledFrame(soundColor);
+  //ledFrame(lightsColor);
+  statusLEDcolors[0] = statusColor;
+  statusLEDcolors[1] = soundColor;
+  statusLEDcolors[2] = lightsColor;
+  for (int i = 3; i < numLEDs; i++)
   {
     if (i == (currCountDownProgramIndex + 3))
     {
-      ledFrame(currCountDownProgramColor);
+      //ledFrame(currCountDownProgramColor);
+      statusLEDcolors[i] = currCountDownProgramColor;
     }
     else
     {
-      ledFrame(off);
+      //ledFrame(off);
+      statusLEDcolors[i] = off;
     }
   }
-  //unsigned long delta_ms = millis() - start;
-  //Serial.print("refreshLEDs time = ");
-  //Serial.print(delta_ms);
-  //Serial.println(" ms");
+  for(int i=0; i< numLEDs; i++)
+  {
+     #ifdef STATUS_LEDS_REVERSED
+     ledFrame(statusLEDcolors[numLEDs-i-1]);
+     #else
+     ledFrame(statusLEDcolors[i]);
+     #endif
+  }
+  endFrame();
 }
 
-void lightOneLED(int onLEDindex, const byte color[])
+void lightOneLED(int onLEDindex, byte color[])
 {
   //Serial.print("onLEDindex = ");
   //Serial.println(onLEDindex);
   startFrame();
-  for (int i = 0; i < numLEDs + 1; i++)
+  for (int i = 0; i < numLEDs; i++)
   {
     //Serial.print(" ");
     //Serial.print(i);
@@ -313,6 +325,7 @@ void lightOneLED(int onLEDindex, const byte color[])
       ledFrame(off);
     }
   }
+  endFrame();
   //Serial.println("!");
 }
 
@@ -324,7 +337,15 @@ void startFrame()
   shiftOut(dataPin, clkPin, MSBFIRST , zero);
 }
 
-void ledFrame(const byte color[])
+void endFrame()
+{
+  shiftOut(dataPin, clkPin, MSBFIRST , allOnes);
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+  shiftOut(dataPin, clkPin, MSBFIRST , zero);
+}
+
+void ledFrame(byte color[])
 {
   shiftOut(dataPin, clkPin, MSBFIRST , allOnes);
   shiftOut(dataPin, clkPin, MSBFIRST , color[2]);
@@ -339,4 +360,5 @@ void clearAll()
   {
     ledFrame(off);
   }
+  endFrame();
 }
