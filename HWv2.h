@@ -14,8 +14,8 @@ const int whiteBtnPin = 9;
 
 //APA102C String:
 #define STATUS_LEDS_REVERSED
-const int clkPin = 11;
-const int dataPin = 13;
+const int clkPin = 13;
+const int dataPin = 11;
 const int numLEDs = 10;
 
 //Battery test:
