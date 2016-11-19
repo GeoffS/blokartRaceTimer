@@ -14,7 +14,7 @@
 #include HARDWARE_INCLUDE
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "1.0.1"
+#define TMCD_VERSION "2.0.0"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -31,6 +31,7 @@ byte * statusColor;
 byte * soundColor;
 byte * lightsColor;
 byte * currCountDownProgramColor;
+byte * battLowWarningColor = off;
 
 byte * statusLEDcolors[numLEDs];
 
@@ -47,6 +48,8 @@ Blinker mediumBlink(750, 200);
 
 int currCountDownProgramIndex = 0;
 const int numCountDownPrograms = 6;
+
+bool battTest = false;
 
 bool undefinedProgram()
 {
@@ -120,13 +123,18 @@ void setup()
   pinMode(lightsPin, OUTPUT);
   pinMode(sirenPin, OUTPUT);
 
+#ifdef BATT_TEST
+  analogReference(INTERNAL);
+#endif
+
   digitalWrite(lightsPin, LOW);
 
   setSiren(false);
   playStartupLEDpattern();
 
   Serial.begin(9600);
-  Serial.println("Version: " TMCD_VERSION);
+  Serial.println("Software Version: " TMCD_VERSION);
+  Serial.println("Hardware Version: " xstr(HARDWARE));
   //initStates();
   //refreshLEDs(currCountDownProgramIndex + 3, blue);
 
@@ -143,6 +151,15 @@ bool stopped = true;
 
 void loop()
 {
+#ifdef BATT_TEST
+  int battVoltage_counts = analogRead(battTestPin);
+  if (battVoltage_counts <= battMin_counts) battLowWarningColor = mediumBlink.ledOn ? red : off;
+  else                                      battLowWarningColor = off;
+#endif
+  // Battery Voltage Monitoring:
+  //int counts = analogRead(battTestPin);
+  //Serial.println(counts);
+
   // Update the blinker:
   unsigned long now = millis();
   mediumBlink.updateLedOnFlag(&now);
@@ -157,6 +174,8 @@ void loop()
   greenBtn.checkButtonState();
   whiteBtn.checkButtonState();
 
+  bool longPressWhiteBtn = whiteBtn.isPressed() && whiteBtn.pressedTime_ms() > 1000;
+
   // Process the states:
   if (stopped)
   {
@@ -165,6 +184,27 @@ void loop()
     {
       flashMainLEDs(); // For testing the remote range.
     }
+#ifdef BATT_TEST
+    if (battTest)
+    {
+      if (longPressWhiteBtn)
+      {
+        set12Vpin(lightsPin, true);
+        Serial.println(battVoltage_counts);
+      }
+      else
+      {
+        set12Vpin(lightsPin, false);
+        battTest = false;
+      }
+      whiteBtn.resetClicked();
+    }
+    else if (longPressWhiteBtn)
+    {
+      battTest = true;
+      whiteBtn.resetClicked();
+    }
+#endif
     else if (remoteA.wasClicked() || greenBtn.wasClicked()) // Button "A" = Start Sequence
     {
       if (!initStates()) return;
@@ -268,7 +308,7 @@ void stepThroughAllAPA102LEDs(byte color[])
   for (int i = 0; i < numLEDs; i++)
   {
 #ifdef STATUS_LEDS_REVERSED
-    lightOneLED(numLEDs-i-1, color);
+    lightOneLED(numLEDs - i - 1, color);
 #else
     lightOneLED(i, color);
 #endif
@@ -287,7 +327,8 @@ void refreshLEDs()
   statusLEDcolors[0] = statusColor;
   statusLEDcolors[1] = soundColor;
   statusLEDcolors[2] = lightsColor;
-  for (int i = 3; i < numLEDs; i++)
+  statusLEDcolors[numLEDs - 1] = battLowWarningColor;
+  for (int i = 3; i < numLEDs - 1; i++)
   {
     if (i == (currCountDownProgramIndex + 3))
     {

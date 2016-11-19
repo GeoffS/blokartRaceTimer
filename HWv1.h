@@ -19,5 +19,5 @@ const int dataPin = 11;
 const int numLEDs = 10;
 
 //Battery test:
-#define BATT_TEST false
+#undef BATT_TEST
 const int battTestPin = -1;
