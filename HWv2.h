@@ -21,6 +21,7 @@ const int numLEDs = 10;
 //Battery test:
 #define BATT_TEST
 const int battTestPin = A2;
-const int battMax_counts = 675; // 8.4V (4.2V/cell)
+const int battMaxWarning_counts = 675; // 8.4V (4.2V/cell)
+const int battMax_counts = 650; // 8.2V (4.1V/cell)
 const int battNom_counts = 590; // 7.4V (3.7V/cell)
 const int battMin_counts = 513; // 6.6V (3.3V/cell)

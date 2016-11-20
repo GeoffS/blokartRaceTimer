@@ -27,6 +27,10 @@ byte green[]  = {  0, 255,   0};
 byte blue[]   = {  0,   0, 255};
 byte white[]  = {255, 255, 255};
 
+byte voltageBarGraphRed[]    = {255,   0,   0};
+byte voltageBarGraphGreen[]  = {  0, 190,   0};
+byte voltageBarGraphYellow[] = {190, 100,   0};
+
 byte * statusColor;
 byte * soundColor;
 byte * lightsColor;
@@ -189,20 +193,23 @@ void loop()
     {
       if (longPressWhiteBtn)
       {
-        set12Vpin(lightsPin, true);
+        //set12Vpin(lightsPin, true);
         Serial.println(battVoltage_counts);
+        loadVoltageBarGraphIntostatusLEDcolorsArray(battVoltage_counts);
+        copyStatusLEDsArrayToAPA102();
       }
       else
       {
-        set12Vpin(lightsPin, false);
+        //set12Vpin(lightsPin, false);
         battTest = false;
       }
-      whiteBtn.resetClicked();
+      //whiteBtn.resetClicked();
+      return;
     }
     else if (longPressWhiteBtn)
     {
       battTest = true;
-      whiteBtn.resetClicked();
+      incrementCurrCountDownProgramIndex(-1);
     }
 #endif
     else if (remoteA.wasClicked() || greenBtn.wasClicked()) // Button "A" = Start Sequence
@@ -215,7 +222,7 @@ void loop()
     }
     else if (whiteBtn.wasClicked())
     {
-      currCountDownProgramIndex = (currCountDownProgramIndex + 1) % numCountDownPrograms;
+      incrementCurrCountDownProgramIndex(1);
     }
   }
   else // Not stopped = Runnning
@@ -250,6 +257,39 @@ void loop()
     }
   }
   refreshLEDs();
+}
+
+void incrementCurrCountDownProgramIndex(int increment)
+{
+  currCountDownProgramIndex = (currCountDownProgramIndex + increment) % numCountDownPrograms;
+  if (currCountDownProgramIndex < 0) currCountDownProgramIndex = 0;
+}
+
+void loadVoltageBarGraphIntostatusLEDcolorsArray(int battVoltage_counts)
+{
+  int voltageBarGraphMaxIndex = round((float)(battVoltage_counts - battMin_counts) / ((float)(battMax_counts - battMin_counts)) * numLEDs);
+  if (voltageBarGraphMaxIndex > numLEDs) voltageBarGraphMaxIndex = numLEDs;
+  if (voltageBarGraphMaxIndex < 0      ) voltageBarGraphMaxIndex = 0;
+  Serial.println(voltageBarGraphMaxIndex);
+  for (int i = 0; i < numLEDs; i++) statusLEDcolors[i] = off;
+  if (voltageBarGraphMaxIndex == 0)
+  {
+    statusLEDcolors[numLEDs - 1] = mediumBlink.ledOn ? red : off;
+  }
+  else
+  {
+    for (int i = 0; i < voltageBarGraphMaxIndex; i++)
+    {
+      int index = numLEDs - i - 1;
+      if      (i < 3) statusLEDcolors[index] = voltageBarGraphRed;
+      else if (i < 6) statusLEDcolors[index] = voltageBarGraphYellow;
+      else            statusLEDcolors[index] = voltageBarGraphGreen;
+    }
+    if (battVoltage_counts > battMax_counts)
+    {
+      statusLEDcolors[0] = mediumBlink.ledOn ? green : off;
+    }
+  }
 }
 
 void playStartupLEDpattern()
@@ -319,28 +359,33 @@ void stepThroughAllAPA102LEDs(byte color[])
 
 void refreshLEDs()
 {
+  updateStatusLEDPattern();
+  copyStatusLEDsArrayToAPA102();
+}
 
-  startFrame();
-  //ledFrame(statusColor);
-  //ledFrame(soundColor);
-  //ledFrame(lightsColor);
+void updateStatusLEDPattern()
+{
   statusLEDcolors[0] = statusColor;
   statusLEDcolors[1] = soundColor;
   statusLEDcolors[2] = lightsColor;
   statusLEDcolors[numLEDs - 1] = battLowWarningColor;
+
   for (int i = 3; i < numLEDs - 1; i++)
   {
     if (i == (currCountDownProgramIndex + 3))
     {
-      //ledFrame(currCountDownProgramColor);
       statusLEDcolors[i] = currCountDownProgramColor;
     }
     else
     {
-      //ledFrame(off);
       statusLEDcolors[i] = off;
     }
   }
+}
+
+void copyStatusLEDsArrayToAPA102()
+{
+  startFrame();
   for (int i = 0; i < numLEDs; i++)
   {
 #ifdef STATUS_LEDS_REVERSED
