@@ -14,7 +14,7 @@
 #include HARDWARE_INCLUDE
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "2.1.0"
+#define TMCD_VERSION "2.1.1"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -230,8 +230,7 @@ void loop()
     {
       if (currStateCounter >= ssm.getNumStates())
       {
-        setLights(endOfRaceBlink.ledOn);
-        //digitalWrite(POST_COUNT_PIN, HIGH);
+        setLights(fpStates[currStateCounter-2] && endOfRaceBlink.ledOn);
       }
       else
       {

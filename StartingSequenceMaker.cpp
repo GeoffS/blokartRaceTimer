@@ -55,7 +55,7 @@ void StartingSequenceMaker::make_2minDU_XminRace( int raceTime_min )
 	addPip(1);
 	addPip(1);
 	addLong(raceTime_min * SEC_PER_MIN);
-	addRaceEnd(60);
+	addRaceEnd(1);
 }
 
 void StartingSequenceMaker::make_2minDU_NoRace()
@@ -105,7 +105,7 @@ void StartingSequenceMaker::make_1minDU_XminRace( int raceTime_min )
 	addPip(1);
 	addPip(1);
 	addLong(raceTime_min * SEC_PER_MIN);
-	addRaceEnd(60);
+	addRaceEnd(1);
 }
 
 void StartingSequenceMaker::addPulse(ULONG pulseDuration_ms, ULONG delayTime_s)
