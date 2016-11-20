@@ -14,7 +14,7 @@
 #include HARDWARE_INCLUDE
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "2.0.0"
+#define TMCD_VERSION "2.1.0"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -49,6 +49,7 @@ bool fpStates[MAX_NUM_STEPS];
 StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 Blinker mediumBlink(750, 200);
+Blinker endOfRaceBlink(500, 50);
 
 int currCountDownProgramIndex = 0;
 const int numCountDownPrograms = 6;
@@ -68,6 +69,7 @@ bool initStates()
   {
     case 0:
       ssm.make_1minDU_NoRace();
+      //makeTestRace();
       break;
     case 1:
       ssm.make_1minDU_XminRace(5);
@@ -90,22 +92,10 @@ bool initStates()
   return true;
 }
 
-void initStates_2minDU_4minRace()
+void makeTestRace()
 {
   ssm.initShort(1);
-  ssm.addShort(1);
-  ssm.addShort(1);
-  ssm.addShort(1);
-  ssm.addLong(60);
-  ssm.addMedium(30);
-  ssm.addMedium(25);
-  ssm.addPip(1);
-  ssm.addPip(1);
-  ssm.addPip(1);
-  ssm.addPip(1);
-  ssm.addPip(1);
-  ssm.addLong(5 * ssm.SEC_PER_MIN);
-  ssm.addRaceEnd(60);
+  ssm.addRaceEnd(1);
 }
 
 Button greenBtn = Button(greenBtnPin);
@@ -139,8 +129,6 @@ void setup()
   Serial.begin(9600);
   Serial.println("Software Version: " TMCD_VERSION);
   Serial.println("Hardware Version: " xstr(HARDWARE));
-  //initStates();
-  //refreshLEDs(currCountDownProgramIndex + 3, blue);
 
   statusColor = red;
   soundColor = off;
@@ -167,6 +155,7 @@ void loop()
   // Update the blinker:
   unsigned long now = millis();
   mediumBlink.updateLedOnFlag(&now);
+  endOfRaceBlink.updateLedOnFlag(&now);
 
   // Check the remote:
   remoteA.checkButtonState();
@@ -241,6 +230,7 @@ void loop()
     {
       if (currStateCounter >= ssm.getNumStates())
       {
+        setLights(endOfRaceBlink.ledOn);
         //digitalWrite(POST_COUNT_PIN, HIGH);
       }
       else
@@ -250,7 +240,6 @@ void loop()
         {
           setSiren(spkrStates[currStateCounter]);
           setLights(fpStates[currStateCounter]);
-          //digitalWrite(lightsPin, fpStates[currStateCounter] ? HIGH : LOW);
           currStateCounter++;
         }
       }
