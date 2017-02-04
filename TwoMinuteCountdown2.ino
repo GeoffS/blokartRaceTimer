@@ -14,7 +14,7 @@
 #include HARDWARE_INCLUDE
 #include "StartingSequenceMaker.h"
 
-#define TMCD_VERSION "2.1.1"
+#define TMCD_VERSION "2.1.2"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -84,7 +84,8 @@ bool initStates()
       ssm.make_2minDU_XminRace(10);
       break;
     case 5:
-      ssm.make_2minDU_XminRace(15);
+      //ssm.make_2minDU_XminRace(15);
+      makeTestRace();
       break;
     case 6: return undefinedProgram();
     default: return undefinedProgram();
