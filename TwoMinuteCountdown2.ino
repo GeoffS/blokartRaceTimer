@@ -12,9 +12,9 @@
 #include <Button.h>
 #include <Blinker.h>
 #include HARDWARE_INCLUDE
-#include "StartingSequenceMaker.h"
+#include "StartingSequenceMaker211.h"
 
-#define TMCD_VERSION "2.1.2"
+#define TMCD_VERSION "2.2.0"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
@@ -46,7 +46,7 @@ const ULONG preDelay_ms = 5000ul;
 ULONG startTimes_ms[MAX_NUM_STEPS];
 bool spkrStates[MAX_NUM_STEPS];
 bool fpStates[MAX_NUM_STEPS];
-StartingSequenceMaker ssm = StartingSequenceMaker(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+StartingSequenceMaker211 ssm = StartingSequenceMaker211(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 Blinker mediumBlink(750, 200);
 Blinker endOfRaceBlink(500, 50);
