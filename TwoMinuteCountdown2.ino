@@ -3,16 +3,19 @@
 //#define HARDWARE HWv1
 #define HARDWARE HWv2
 
+#define SSM_VERSION StartingSequenceMaker220
+
 // Stringify macro expansion...
 #define xstr(s) str(s)
 #define str(s) #s
 
 #define HARDWARE_INCLUDE xstr(HARDWARE.h)
+#define SSM_INCLUDE xstr(SSM_VERSION.h)
 
 #include <Button.h>
 #include <Blinker.h>
 #include HARDWARE_INCLUDE
-#include "StartingSequenceMaker211.h"
+#include SSM_INCLUDE
 
 #define TMCD_VERSION "2.2.0"
 
@@ -46,7 +49,7 @@ const ULONG preDelay_ms = 5000ul;
 ULONG startTimes_ms[MAX_NUM_STEPS];
 bool spkrStates[MAX_NUM_STEPS];
 bool fpStates[MAX_NUM_STEPS];
-StartingSequenceMaker211 ssm = StartingSequenceMaker211(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+SSM_VERSION ssm = SSM_VERSION(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 Blinker mediumBlink(750, 200);
 Blinker endOfRaceBlink(500, 50);
@@ -68,35 +71,26 @@ bool initStates()
   switch (currCountDownProgramIndex)
   {
     case 0:
-      ssm.make_1minDU_NoRace();
-      //makeTestRace();
+      ssm.makeSequence1();
       break;
     case 1:
-      ssm.make_1minDU_XminRace(5);
+      ssm.makeSequence2();
       break;
     case 2:
-      ssm.make_2minDU_NoRace();
+      ssm.makeSequence3();
       break;
     case 3:
-      ssm.make_2minDU_XminRace(5);
+      ssm.makeSequence4();
       break;
     case 4:
-      ssm.make_2minDU_XminRace(10);
+      ssm.makeSequence5();
       break;
     case 5:
-      //ssm.make_2minDU_XminRace(15);
-      makeTestRace();
+      ssm.makeSequence6();
       break;
-    case 6: return undefinedProgram();
     default: return undefinedProgram();
   }
   return true;
-}
-
-void makeTestRace()
-{
-  ssm.initShort(1);
-  ssm.addRaceEnd(1);
 }
 
 Button greenBtn = Button(greenBtnPin);
