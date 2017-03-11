@@ -21,7 +21,7 @@ const ULONG preDelay_ms = 5000ul;
 const ULONG SEC_PER_MIN = 60;
 const ULONG MSEC_PER_SEC = 1000ul;
 
-void StartingSequenceMaker::initShort(int delayTime_s, bool spkr=true, bool light=false)
+void StartingSequenceMaker::initShort(int delayTime_s, bool spkr, bool light)
 {
   //for(int i=0; i<numSteps; i++) startTimes_ms[i] = 0ul;
 
@@ -41,7 +41,7 @@ void StartingSequenceMaker::initShort(int delayTime_s, bool spkr=true, bool ligh
 }
 
 
-void StartingSequenceMaker::addPulse(ULONG pulseDuration_ms, ULONG delayTime_s, bool spkr=true, bool light=false)
+void StartingSequenceMaker::addPulse(ULONG pulseDuration_ms, ULONG delayTime_s, bool spkr, bool light)
 {
   if (stepCounter >= startTimesArraySize) return;
   
@@ -57,27 +57,27 @@ void StartingSequenceMaker::addPulse(ULONG pulseDuration_ms, ULONG delayTime_s, 
   stepCounter += 2;
 }
 
-void StartingSequenceMaker::addShort(int timeToNextPulse_s, bool spkr=true, bool light=false)
+void StartingSequenceMaker::addShort(int timeToNextPulse_s, bool spkr, bool light)
 {
   addPulse(shortPulse_ms, timeToNextPulse_s, spkr, light);
 }
 
-void StartingSequenceMaker::StartingSequenceMaker::addMedium(int timeToNextPulse_s, bool spkr=true, bool light=false)
+void StartingSequenceMaker::StartingSequenceMaker::addMedium(int timeToNextPulse_s, bool spkr, bool light)
 {
   addPulse(mediumPulse_ms, timeToNextPulse_s, spkr, light);
 }
 
-void StartingSequenceMaker::addLong(int timeToNextPulse_s, bool spkr=true, bool light=false)
+void StartingSequenceMaker::addLong(int timeToNextPulse_s, bool spkr, bool light)
 {
   addPulse(longPulse_ms, timeToNextPulse_s, spkr, light);
 }
 
-void StartingSequenceMaker::addPip(int timeToNextPulse_s, bool spkr=true, bool light=false)
+void StartingSequenceMaker::addPip(int timeToNextPulse_s, bool spkr, bool light)
 {
   addPulse(pipPulse_ms, timeToNextPulse_s, spkr, light);
 }
 
-void StartingSequenceMaker::addRaceEnd(int stateDuration_s, bool spkr=false, bool light=true)
+void StartingSequenceMaker::addRaceEnd(int stateDuration_s, bool spkr, bool light)
 {
   if (stepCounter >= startTimesArraySize) return;
   

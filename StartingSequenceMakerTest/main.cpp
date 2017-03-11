@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../../StartingSequenceMaker.h"
+#include "../../StartingSequenceMaker211.h"
 
 #define BOOL2STR ?"True":"False"
 
@@ -104,7 +104,7 @@ bool check_2minDU_XminRace( int raceTime_min)
 	ULONG startTimes_ms[MAX_NUM_STEPS];
 	bool spkrStates[MAX_NUM_STEPS];
 	bool fpStates[MAX_NUM_STEPS];
-	StartingSequenceMaker ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+	StartingSequenceMaker211 ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 	ssm.make_2minDU_XminRace( raceTime_min );
 
@@ -126,7 +126,7 @@ bool test_2minDU_5minRaceOri()
 	ULONG startTimes_ms[MAX_NUM_STEPS];
 	bool spkrStates[MAX_NUM_STEPS];
 	bool fpStates[MAX_NUM_STEPS];
-	StartingSequenceMaker ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+	StartingSequenceMaker211 ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 	ssm.make_2minDU_XminRace( 5 );
 
@@ -165,7 +165,7 @@ bool test_2minDU_NoRace()
 	ULONG startTimes_ms[MAX_NUM_STEPS];
 	bool spkrStates[MAX_NUM_STEPS];
 	bool fpStates[MAX_NUM_STEPS];
-	StartingSequenceMaker ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+	StartingSequenceMaker211 ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 	ssm.make_2minDU_NoRace();
 
@@ -186,7 +186,7 @@ bool test_1minDU_NoRace()
 	ULONG startTimes_ms[MAX_NUM_STEPS];
 	bool spkrStates[MAX_NUM_STEPS];
 	bool fpStates[MAX_NUM_STEPS];
-	StartingSequenceMaker ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+	StartingSequenceMaker211 ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 	ssm.make_1minDU_NoRace();
 
@@ -213,7 +213,7 @@ bool test_1minDU_5minRace()
 	ULONG startTimes_ms[MAX_NUM_STEPS];
 	bool spkrStates[MAX_NUM_STEPS];
 	bool fpStates[MAX_NUM_STEPS];
-	StartingSequenceMaker ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
+	StartingSequenceMaker211 ssm(startTimes_ms, spkrStates, fpStates, MAX_NUM_STEPS);
 
 	ssm.make_1minDU_XminRace( 5 );
 

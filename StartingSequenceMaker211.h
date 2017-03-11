@@ -16,7 +16,8 @@ class StartingSequenceMaker211 : public StartingSequenceMaker
     void makeSequence5();
     void makeSequence6();
 
-  protected:
+  //protected:
+  // Public for test...
     void make_2minDU_XminRace( int raceTime_min );
     void make_2minDU_NoRace();
     void make_1minDU_XminRace( int raceTime_min );

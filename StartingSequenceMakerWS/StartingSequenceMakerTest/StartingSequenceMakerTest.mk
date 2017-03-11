@@ -13,8 +13,8 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Geoff
-Date                   :=03/10/2016
-CodeLitePath           :="C:/Program Files/CodeLite"
+Date                   :=10/03/2017
+CodeLitePath           :="G:/Program Files/CodeLite"
 LinkerName             :=C:/TDM-GCC-64/bin/g++.exe
 SharedObjectLinkerName :=C:/TDM-GCC-64/bin/g++.exe -shared -fPIC
 ObjectSuffix           :=.o
@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch).
 AR       := C:/TDM-GCC-64/bin/ar.exe rcu
 CXX      := C:/TDM-GCC-64/bin/g++.exe
 CC       := C:/TDM-GCC-64/bin/gcc.exe
-CXXFLAGS :=  -g -O0 -Wall $(Preprocessors)
+CXXFLAGS :=  -g -O0 -Wall -std=c++11 $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := C:/TDM-GCC-64/bin/as.exe
@@ -61,8 +61,8 @@ AS       := C:/TDM-GCC-64/bin/as.exe
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=C:\Program Files\CodeLite
-Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/StartingSequenceMaker.cpp$(ObjectSuffix) 
+CodeLiteDir:=G:\Program Files\CodeLite
+Objects0=$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(ObjectSuffix) $(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(ObjectSuffix) $(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(ObjectSuffix) $(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(ObjectSuffix) 
 
 
 
@@ -93,21 +93,37 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/main.cpp$(ObjectSuffix): ../../StartingSequenceMakerTest/main.cpp $(IntermediateDirectory)/main.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "G:/Arduino/Projects/TwoMinuteCountdown2/StartingSequenceMakerTest/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/main.cpp$(DependSuffix): ../../StartingSequenceMakerTest/main.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/main.cpp$(DependSuffix) -MM ../../StartingSequenceMakerTest/main.cpp
+$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(ObjectSuffix): ../../StartingSequenceMakerTest/main.cpp $(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "G:/Arduino/Projects/TwoMinuteCountdown2/StartingSequenceMakerTest/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(DependSuffix): ../../StartingSequenceMakerTest/main.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(DependSuffix) -MM ../../StartingSequenceMakerTest/main.cpp
 
-$(IntermediateDirectory)/main.cpp$(PreprocessSuffix): ../../StartingSequenceMakerTest/main.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/main.cpp$(PreprocessSuffix)../../StartingSequenceMakerTest/main.cpp
+$(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(PreprocessSuffix): ../../StartingSequenceMakerTest/main.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_up_StartingSequenceMakerTest_main.cpp$(PreprocessSuffix) ../../StartingSequenceMakerTest/main.cpp
 
-$(IntermediateDirectory)/StartingSequenceMaker.cpp$(ObjectSuffix): ../../StartingSequenceMaker.cpp $(IntermediateDirectory)/StartingSequenceMaker.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "G:/Arduino/Projects/TwoMinuteCountdown2/StartingSequenceMaker.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/StartingSequenceMaker.cpp$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/StartingSequenceMaker.cpp$(DependSuffix): ../../StartingSequenceMaker.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/StartingSequenceMaker.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/StartingSequenceMaker.cpp$(DependSuffix) -MM ../../StartingSequenceMaker.cpp
+$(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(ObjectSuffix): ../../StartingSequenceMaker.cpp $(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "G:/Arduino/Projects/TwoMinuteCountdown2/StartingSequenceMaker.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(DependSuffix): ../../StartingSequenceMaker.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(DependSuffix) -MM ../../StartingSequenceMaker.cpp
 
-$(IntermediateDirectory)/StartingSequenceMaker.cpp$(PreprocessSuffix): ../../StartingSequenceMaker.cpp
-	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/StartingSequenceMaker.cpp$(PreprocessSuffix)../../StartingSequenceMaker.cpp
+$(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(PreprocessSuffix): ../../StartingSequenceMaker.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_up_StartingSequenceMaker.cpp$(PreprocessSuffix) ../../StartingSequenceMaker.cpp
+
+$(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(ObjectSuffix): ../../StartingSequenceMaker211.cpp $(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "G:/Arduino/Projects/TwoMinuteCountdown2/StartingSequenceMaker211.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(DependSuffix): ../../StartingSequenceMaker211.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(DependSuffix) -MM ../../StartingSequenceMaker211.cpp
+
+$(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(PreprocessSuffix): ../../StartingSequenceMaker211.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_up_StartingSequenceMaker211.cpp$(PreprocessSuffix) ../../StartingSequenceMaker211.cpp
+
+$(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(ObjectSuffix): ../../StartingSequenceMaker220.cpp $(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "G:/Arduino/Projects/TwoMinuteCountdown2/StartingSequenceMaker220.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(DependSuffix): ../../StartingSequenceMaker220.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(DependSuffix) -MM ../../StartingSequenceMaker220.cpp
+
+$(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(PreprocessSuffix): ../../StartingSequenceMaker220.cpp
+	$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_up_StartingSequenceMaker220.cpp$(PreprocessSuffix) ../../StartingSequenceMaker220.cpp
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
