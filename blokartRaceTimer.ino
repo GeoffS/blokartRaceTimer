@@ -17,7 +17,7 @@
 #include HARDWARE_INCLUDE
 #include SSM_INCLUDE
 
-#define TMCD_VERSION "2.2.0"
+#define TMCD_VERSION "2.2.1"
 
 #define BOOL2HIGHLOW ?HIGH:LOW
 
