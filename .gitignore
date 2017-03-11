@@ -1,0 +1,5 @@
+__vm
+*.suo
+[Dd]ebug
+.codelite
+*.hex
